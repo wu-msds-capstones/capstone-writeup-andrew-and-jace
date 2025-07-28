@@ -1,1 +1,105 @@
 # Results
+
+## Over/Under Run Scoring Analysis
+Our initial analysis focused on identifying which variables were most predictive of how many runs a team scores in a given game. We used a wide range of features grouped into three main categories:
+
+Opposing starting pitcher (sp.) statistics, including metrics such as earned run average (ERA), opponent batting average (BA), innings pitched (IP), and expected stats like xERA and xBA.
+
+Opposing relief pitcher statistics (rp.), which represent aggregated bullpen performance using the same types of measures as for starters, such as ERA and slugging percentage (SLG) allowed.
+
+Team batter statistics (b.), covering both per-game aggregates (e.g., total hits, home runs, strikeouts) and season-long averages for the lineup, such as batting average (BA) and slugging percentage (SLG).
+
+By integrating data from opposing starting pitchers, opposing relievers, and the team’s offensive performance, we aimed to construct a well-rounded model for predicting team run performance.
+
+### Exploratory Data Analysis
+
+To gain insight into team scoring behavior, we computed summary statistics for runs scored per game. This helped us examine the distribution of offensive output and understand typical scoring ranges across all team-game observations.
+
+<figure>
+  <img src="images/run_dist.png" alt="Run Distribution" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 2: Team-level distribution of runs scored per game over the specified time period
+  </figcaption>
+</figure>
+
+The distribution of runs scored per game was right-skewed, with a few high-scoring outliers pulling the mean upward. The median was 4 runs, while the mean was slightly higher at 4.6, reflecting the impact of those outliers. This mean value serves as a useful benchmark when modeling run production in machine learning, especially when deciding how to frame our prediction target.
+
+We then focused on identifying which features were most indicative of how many runs a team scores in a game. To do this, we built a linear regression model using a wide range of pitching and hitting statistics. However,  many baseball metrics are inherently correlated, for example, batting average contributes heavily to a weighted on base average (wOBA). Thus, we encountered significant multicollinearity. To address this, we systematically filtered out redundant variables, prioritizing those that captured unique predictive value. After this reduction process, we finalized a simplified linear model using the following variables: `sp_era`, `sp_ba`, `sp_slg`, `rp_era`, `rp_slg`, `rp_ip`, `b_ba`, `b_sum_so`, `b_slg`. 
+
+From our linear model, we identified three statistically significant predictors of runs scored:
+
+- Relief pitcher ERA (rp_era), with a p-value of 0.047
+
+- Relief pitcher innings pitched (rp_ip), with a p-value of 0.001
+
+- Team batting average (b_ba), with a p-value of 0.011.
+
+Batting average stood out as something worth exploring further, especially as the season progresses, since we also have data on expected batting average (xBA) available.  
+
+### Actual vs. Expected Batting Average
+The law of averages suggest that after a large number of trials, outcomes tend to converge toward their expected value. While not a guarantee, this principle would imply that a teams collective batting average should align more closely with their expected batting average as the season progresses.
+
+Expected batting average is a Statcast metric designed to estimate the likelihood that a batted ball will result in a hit. It is based on two key factors: exit velocity (how hard the ball is hit) and the launch angle (the angle at which the ball hits off the bat). Baseball is an incredibly difficult sport, and surface-level stats don’t always tell the full story. That’s where expected statistics come in—they often provide a more accurate picture of a player’s performance. For example, a hitter might crush a ball at 115 MPH, but if it’s hit directly at a defender, it results in an out. On the other hand, a softly hit ball at just 40 MPH could drop into the perfect spot for a hit. xBA accounts for these inconsistencies by using historical data to estimate how often similar batted balls have gone for hits. While not perfect, it offers a more context-aware view of hitting performance.
+
+<figure>
+  <img src="images/ba.png" alt="Batting Average" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 3: Visualizing whether teams underperforming and overperforming their respective expected batting average metric.
+  </figcaption>
+</figure>
+
+Since we are trying to understand team run production it makes sense to inspect batting average-- a statistic that closely correlates with runs scored. When a team's actual batting average is lower than its expected batting average (xBA), it is indicative of underperformance. Further, we might anticipate that, over time, they will regress upward as outcomes begin to “even out.” In other words, we would expect more batted balls to start falling for hits, raising both their batting average and, ultimately, their run totals.
+
+Conversely, teams currently overperforming their xBA may regress downward, with fewer hits falling in, resulting in fewer runs scored.
+
+Tracking these differences provides valuable insight into which teams may be poised for a shift in offensive production based on their underlying quality of contact. 
+
+<figure>
+  <img src="images/run_diff.png" alt="Run Differences" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 4: Identifing the teams with the largest increases and decreases in average runs scored following the All-Star Break.
+  </figcaption>
+</figure>
+
+A pattern emerges when comparing team-level batting average (BA) versus expected batting average (xBA) with changes in run production post-All-Star Break. Teams that had been underperforming their xBA, such as CLE, CWS, KC, and HOU are now scoring significantly more runs, suggesting positive regression. Conversely, overperforming teams like BOS and SEA have seen their run production drop, hinting at regression to the mean. Teams whose actual performance closely matched their expected metrics experienced relatively stable scoring.
+
+The Rockies appear to be overperforming their expected batting average (xBA), but this is likely a product of Coors Field-- MLB’s most hitter-friendly park. The high altitude and thin air in Denver inflate offensive stats by reducing air resistance and allowing balls to travel farther. This "Coors Field Effect" regularly skews batting metrics, making Colorado’s apparent overperformance more a reflection of park conditions than unsustainable hitting.
+
+<figure>
+  <img src="images/ba2.png" alt="Batting Average Overlayed" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 5: Linking changes in run production to batting average overperformance and underperformance by teams with the largest differences post All-Star Break.
+  </figcaption>
+</figure>
+
+
+## Prop Betting Analysis for Batters
+We then explored hitter-focused prop bets, specifically whether a batter would record at least one hit or exceed two total bases in a given game. Total bases are calculated as follows: a single counts as one, a double as two, a triple as three, and a home run as four. To surpass two total bases, a player could hit a double, triple, home run, or combine multiple hits (e.g., two singles). Any combination totaling more than two qualifies for the over.
+
+### Pitcher-Batter Preview 
+To gain an edge in predicting favorable prop outcomes, we began by analyzing game preview data for each day, including scheduled starting pitchers and historical batter-vs-pitcher matchup statistics. 
+
+The first areas we explored was how specific batters had performed against certain pitchers in the past. In baseball, it is often said that some hitters "have have a pitcher's number," meaning they see a pitcher very well— a phenomenon that may not always be captured by traditional stats. When a batter consistently succeeds against a particular pitcher, it can signal a meaningful matchup advantage. With that in mind, we prioritized these historical trends as a way to identify potentially favorable prop bet opportunities.
+
+Next, we analyzed discrepancies in run value per 100 pitches (RV/100) to identify potential mismatches between pitchers and hitters. Specifically, we calculated the difference in RV/100 by comparing a batter’s performance against specific pitch types to the different pitches thrown by the scheduled opposing pitcher. This allowed us to estimate how well a batter might match up based on the types of pitches they were likely to face in a given game. In other words, we cross-referenced each batter’s strengths with a pitcher’s weaknesses to uncover matchups where a hitter may be especially well-suited to succeed. To ensure the matchup was meaningful, we also applied a minimum usage threshold, filtering out pitch types that a pitcher rarely throws.
+
+#### Interactive Hitter Matchup App
+This dashboard is built to showcase the most advantageous matchups for the games daily.
+
+The top table displays advantageous batter-pitcher matchup histories, filtered to highlight hitters with the strongest track records. To ensure meaningful results, we included only hitters with a batting average above .250 against the opposing pitcher—indicating they’ve recorded a hit in more than 25% of their past at-bats. Additionally, we required a minimum of four at-bats in the matchup to ensure a more substantial sample size.
+
+The table below highlights batters with a significant advantage based on run value against specific pitch types. It is sorted from highest to lowest run value difference, showcasing hitters who are most likely to succeed against the opposing pitcher's arsenal. To qualify for this table, a batter must have a run value differential greater than 2 in their favor. If a batter appears in both this table and the matchup history table above, they are highlighted in yellow-- indicating that both analyses suggest a strong likelihood of success in that day’s game.
+
+Users can sort the dashboard by date, with the default view automatically displaying matchups from the current day’s slate of games. If a previous date is selected, historical matchups and their corresponding results will appear. A color-coded key is provided below the date selector to help interpret the meaning of each highlighted row.
+
+At the bottom of the dashboard is a simulated betting analysis. For players to get a hit,it is typically priced around -200 odds, meaning a $200 wager would win $100. For the purpose of our analysis, we will be assuming a $10 wager per player. A successful bet yields a $5 profit, while a loss forfeits the $10 stake. For total bases (2+), where odds are usually closer to +100, we again simulate $10 wagers. In this case, a win returns $10 in profit, while a loss results in a $10 loss. The dashboard aggregates daily results based on these assumptions and displays the cumulative outcomes for easy tracking.
+
+<div style="text-align: center;">
+  <iframe src="https://60bwvg-jace-higa.shinyapps.io/mlb_betting/" width="100%" height="800px" style="border:none;"></iframe>
+  <p style="margin-top: 8px; font-style: italic; font-size: 0.95em; color: #555;">
+    Figure 6: Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.
+  </p>
+</div>
+
+
+
