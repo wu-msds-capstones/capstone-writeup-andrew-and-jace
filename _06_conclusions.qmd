@@ -1,14 +1,22 @@
 # Conclusions
 
-## Key findings
-- Bullpen performance is a key driver of scoring: Relief pitcher stats, particularly ERA and innings pitched—were strong predictors of team run totals, often more so than starter metrics. This is intuitive: when a starting pitcher struggles, they're removed early, forcing greater reliance on the bullpen. This creates opportunities to exploit bullpen fatigue or depth mismatches. In future work, incorporating contextual bullpen data-- such as relievers’ recent usage or rest days could enhance predictive power. For example, a reliever who has pitched on consecutive days is less likely to appear a third time, which could impact late-game run prevention.
+## Key Findings
+
+### Over/Under Runs Bets
+- Bullpen performance is a key driver of scoring: Relief pitcher stats-- particularly ERA and innings pitched—emerged as strong predictors of team run totals, often more so than starter metrics. This makes intuitive sense: when a starting pitcher struggles, they’re pulled early, increasing reliance on the bullpen. This dynamic creates opportunities to exploit bullpen fatigue or depth mismatches. Future work could incorporate more contextual bullpen data—such as recent usage patterns or rest days—to improve predictive accuracy. For instance, a reliever who has pitched on back-to-back days is unlikely to appear a third time, potentially weakening late-game pitching and favoring higher scoring (the over). Conversely, a well-rested bullpen could suppress late runs and tilt outcomes toward the under.
 
 - Expected stats signal potential shifts: Gaps between actual and expected batting average (xBA) can correspond with changes in team scoring, indicating both positive and negative regression toward underlying performance levels. 
 
 
-## Implications
+### Prop Bets
+- Still finalizing preview history and run value metrics. For now, here’s how the scoring works:
 
+- Getting a Hit (H ≥ 1): +40
+This assumes a payout ratio where a successful bet returns 4x your original stake.
 
+- Getting 2+ Total Bases (TB < 2): –170
+This reflects the steep odds, where missing the mark would cost you 17x your bet.
+ We still need to do some tweaking and modifying for this.
 
 
 

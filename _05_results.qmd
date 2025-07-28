@@ -39,7 +39,7 @@ Batting average stood out as something worth exploring further, especially as th
 ### Actual vs. Expected Batting Average
 The law of averages suggest that after a large number of trials, outcomes tend to converge toward their expected value. While not a guarantee, this principle would imply that a teams collective batting average should align more closely with their expected batting average as the season progresses.
 
-Expected batting average is a Statcast metric designed to estimate the likelihood that a batted ball will result in a hit. It is based on two key factors: exit velocity (how hard the ball is hit) and the launch angle (the angle at which the ball hits off the bat). Baseball is an incredibly difficult sport, and surface-level stats don’t always tell the full story. That’s where expected statistics come in—they often provide a more accurate picture of a player’s performance. For example, a hitter might crush a ball at 115 MPH, but if it’s hit directly at a defender, it results in an out. On the other hand, a softly hit ball at just 40 MPH could drop into the perfect spot for a hit. xBA accounts for these inconsistencies by using historical data to estimate how often similar batted balls have gone for hits. While not perfect, it offers a more context-aware view of hitting performance.
+Expected batting average is a Statcast metric designed to estimate the likelihood that a batted ball will result in a hit. It is based on two key factors: exit velocity (how hard the ball is hit) and the launch angle (the angle at which the ball hits off the bat). Baseball is an incredibly difficult sport, and surface-level stats don’t always tell the full story. That is where expected statistics come in-- they often provide a more accurate picture of a player’s performance. For example, a hitter might crush a ball at 115 MPH, but if it’s hit directly at a defender, it results in an out. On the other hand, a softly hit ball at just 40 MPH could drop into the perfect spot for a hit. xBA accounts for these inconsistencies by using historical data to estimate how often similar batted balls have gone for hits. While not perfect, it offers a more context-aware view of hitting performance.
 
 <figure id="fig-ba">
   <img src="images/ba.png" alt="Batting Average" width="800">
@@ -105,65 +105,88 @@ At the bottom of the dashboard is a simulated betting analysis. For players to g
 
 ## Machine Learning for Individual Player Props
 
-While the interactive dashboard approach provided valuable insights into daily matchup advantages, we recognized the need for a systematic, scalable approach to individual player prop prediction. To complement the human-guided analysis, we developed a comprehensive machine learning pipeline focused on predicting specific prop betting outcomes using historical player performance and advanced statistical modeling.
+While the interactive dashboard approach provided valuable insights into daily matchup advantages, we recognized the need for a scalable, data-driven approach to individual player prop prediction. To complement the human-guided analysis, we developed a comprehensive machine learning pipeline focused on predicting specific prop betting outcomes using historical player performance and advanced statistical modeling.
 
 ### Statistical Thinking and Model Development
 
 Our machine learning approach was grounded in established sports betting research, particularly the findings of Walsh & Joshi (2024) demonstrating that model calibration matters more than raw accuracy for betting profitability. Rather than optimizing solely for traditional machine learning metrics, we prioritized probability calibration to ensure our predictions would translate effectively to real-world betting scenarios.
 
-We framed individual player prop prediction as a series of binary classification problems, creating target variables that directly corresponded to common betting markets: whether a player would record more than 0.5 hits (`hits_over_0.5`), more than 1.5 hits (`hits_over_1.5`), more than 1.5 total bases (`total_bases_over_1.5`), and more than 0.5 home runs (`home_runs_over_0.5`). This approach aligned our statistical models with practical betting applications while maintaining methodological rigor.
+We framed individual player prop prediction as a series of binary classification problems, creating target variables that directly corresponded to common betting markets: whether a player would record more than 0.5 hits (`hits_over_0.5`), more than 1.5 hits (`hits_over_1.5`), and more than 1.5 total bases (`total_bases_over_1.5`). This approach aligned our statistical models with practical betting applications while maintaining methodological rigor.
 
-### Feature Engineering
-Our feature engineering process combined multiple temporal perspectives to create predictive variables optimized for prop betting outcomes. From the `batting_statcast` table, we extracted season-long context including `batting_avg`, `ops`, `woba`, and `wrc_plus` to establish baseline player ability. We calculated recent form indicators through game-level performance rates and Statcast-derived metrics such as hard-hit ball percentage and average exit velocity. Most critically, we engineered binary target variables matching common prop betting markets: `hits_over_0.5`, `hits_over_1.5`, `total_bases_over_1.5`, and `home_runs_over_0.5`, with target distributions ranging from 11.5% (home runs) to 61.1% (hits).
+A central emphasis throughout our model development was avoiding data leakage to ensure our predictions would replicate information realistically available before game time. This methodological focus guided our feature engineering process and model validation approach, prioritizing realistic predictive capability over artificially inflated performance metrics.
 
-To capture recent performance and contact quality, we integrated advanced Statcast metrics from our pitch-level data aggregation. Key features included `avg_exit_velo` (average exit velocity), `hard_hit_rate` (percentage of batted balls exceeding 95 mph), and contextual factors such as `is_home` and `season` indicators. This combination of historical context and recent form created a comprehensive feature set spanning 11 primary variables.
+### Feature Engineering and Data Leakage Prevention
 
-The final integrated dataset achieved a 46.9% seasonal data merge rate, yielding 7,028 records with complete feature sets suitable for machine learning model development. This represented a deliberate trade-off between data completeness and prediction accuracy, focusing on players with sufficient historical context for reliable modeling.
+Our feature engineering process was designed with strict adherence to temporal constraints that would apply in real-world betting scenarios. We exclusively used information that would be available before game time, avoiding any same-game statistics that could artificially inflate model performance.
+
+From seasonal batting statistics, we incorporated established player ability metrics including `season_batting_avg`, `season_obp`, `season_slg`, `season_ops`, `season_woba`, and `season_wrc_plus`. These provide baseline context for each player's demonstrated skill level over the current season.
+
+To capture per-game expectations without using same-game data, we calculated historical rate features such as `historical_hr_per_game`, `historical_hit_per_game`, `historical_walk_rate`, and `historical_k_rate` by dividing season totals by games played. These features provide realistic estimates of typical player output while maintaining temporal validity.
+
+Experience and volume indicators included `games_played`, `season_games`, and contextual factors such as `is_home` and `season` indicators. These features capture player experience, health, and situational factors without incorporating any information from the game being predicted.
+
+The final dataset comprised 19,587 player-game records across training (12,000), validation (4,000), and test (3,587) sets, with 47% of records containing complete seasonal statistical context. This represented a deliberate trade-off between data completeness and prediction reliability, focusing on players with sufficient historical information for meaningful modeling.
 
 ### Model Architecture and Algorithm Selection
 
 Based on academic literature review, we implemented a comparative analysis of multiple machine learning algorithms known to perform well in sports prediction contexts. Our model suite included Random Forest, XGBoost, and ensemble methods, each calibrated using isotonic regression to optimize probability estimates for betting applications.
 
-The Random Forest implementation used 200 estimators with a maximum depth of 10, balanced to prevent overfitting while capturing complex feature interactions. Our XGBoost configuration employed 200 estimators with a learning rate of 0.1 and regularization parameters (subsample=0.8, colsample_bytree=0.8) based on best practices for sports betting applications documented in recent literature.
+The Random Forest implementation used 100 estimators with a maximum depth of 6, configured conservatively to prevent overfitting in the challenging sports prediction environment. Our XGBoost configuration employed 100 estimators with a learning rate of 0.05 and regularization parameters designed specifically for sports betting applications.
 
 Most critically, following Walsh & Joshi's research demonstrating that calibration-optimized models achieved +34.69% ROI versus -35.17% for accuracy-focused models, we applied CalibratedClassifierCV with isotonic regression to all base models. This ensured our probability outputs would be well-calibrated for betting decision-making rather than optimized solely for classification accuracy.
 
-To leverage the strengths of multiple algorithms, we created ensemble models using voting classifiers that combined the calibrated outputs of our individual models. This approach aligned with Galekwa et al. (2024) findings that ensemble methods consistently outperform single models in sports betting applications.
+To leverage the strengths of multiple algorithms, we created ensemble models using weighted voting that combined the calibrated outputs of our individual models. This approach aligned with Galekwa et al. (2024) findings that ensemble methods consistently outperform single models in sports betting applications.
 
 ### Model Performance and Validation
 
-Our comprehensive evaluation utilized 7,028 player-game records with complete seasonal statistical context, representing 537 unique players across the 2024-2025 seasons. We employed stratified random sampling to maintain representative target distributions across training and testing sets, with 75% of data used for model training and 25% reserved for final evaluation.
+Our comprehensive evaluation employed temporal validation with strict separation between training, validation, and test periods to simulate realistic prediction scenarios. Training data covered April-May 2025, validation used June 2025, and testing employed July 2025 data, ensuring models never saw future information during training.
 
-The Random Forest model emerged as the top performer with an average AUC of 0.615 across all target variables, followed closely by ensemble methods at 0.610 AUC. XGBoost achieved 0.591 AUC, demonstrating solid but slightly lower performance in this application. Individual target results showed consistent performance across different prop types, with `total_bases_over_1.5` achieving the highest individual AUC of 0.633.
+The Random Forest model achieved the strongest performance with an average test AUC of 0.549 across target variables, followed by ensemble methods at 0.548 AUC and XGBoost at 0.548 AUC. Individual target performance varied, with `hits_over_1.5` achieving the highest AUC of 0.554, while `total_bases_over_1.5` recorded 0.543 AUC.
 
-When benchmarked against academic literature, our best model achieved 11.3% improvement over the established baseline of 0.552 AUC (Elfrink, 2018). This performance places our results within the documented literature range of 0.57-0.62 AUC for successful sports betting models, indicating strong potential for practical application.
+<figure id="fig-model_performance">
+  <img src="images/model_performance_comparison_final.png" alt="Model Performance Comparison" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 7: Model performance comparison across MLB player prop targets. Left panel shows all algorithms clustering near the academic baseline (Elfrink 2018), demonstrating realistic performance expectations for sports betting applications. Right panel validates absence of overfitting through strong validation-test agreement along the diagonal.
+  </figcaption>
+</figure>
 
-Particularly noteworthy was the consistent performance across different prop types, suggesting our feature engineering successfully captured generalizable patterns in player performance rather than overfitting to specific outcomes. The calibrated nature of our models ensures that probability estimates can be directly compared to betting market prices for value identification.
+When benchmarked against established academic literature, our results align closely with the documented baseline of 0.552 AUC (Elfrink, 2018) for MLB prediction tasks. This performance falls within the expected range for legitimate sports betting models that avoid data leakage, demonstrating that our emphasis on methodological rigor produced realistic performance estimates rather than artificially inflated metrics.
+
+The consistency of performance across different target variables and temporal periods validates our feature engineering approach and suggests that our models captured generalizable patterns in player performance rather than overfitting to specific outcomes or time periods. As shown in <a href="#fig-model_performance">Figure 7</a>, the tight clustering of all algorithms around the academic baseline, combined with the strong validation-test agreement along the diagonal, confirms both realistic performance expectations and robust generalization capabilities.
 
 ### Feature Importance and Model Interpretation
 
-Analysis of feature importance revealed that seasonal performance metrics dominated predictive power, with `season_batting_avg`, `season_ops`, and `season_woba` consistently ranking among the top contributors across all models. This finding validates the importance of established player ability as captured by comprehensive seasonal statistics.
+Analysis of feature importance revealed that seasonal performance metrics provided the primary predictive signal, with `season_batting_avg`, `season_ops`, and `season_woba` consistently ranking among the top contributors across all models. This finding validates the importance of established player ability as captured through comprehensive seasonal statistics.
 
-Advanced Statcast metrics, particularly `avg_exit_velo`, provided significant additional predictive value, confirming that contact quality measurements enhance traditional statistical approaches. Historical rate calculations such as `historical_hr_rate` and `historical_hit_rate` proved valuable for normalizing seasonal totals across different playing time contexts.
+<figure id="fig-feature_importance">
+  <img src="images/feature_importance.png" alt="Feature Importance Analysis" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 8: Feature importance analysis aggregated across all models and targets, demonstrating the dominance of legitimate pre-game predictors. Seasonal statistics (blue) and historical rates (orange) provide the strongest predictive signal, while the complete absence of same-game features confirms successful data leakage prevention.
+  </figcaption>
+</figure>
 
-Interestingly, contextual factors like `season` and `is_home` showed moderate but consistent importance, suggesting systematic differences in performance across these dimensions that could be further explored in future model iterations.
+Historical rate calculations such as `historical_hr_per_game` and `historical_hit_per_game` proved valuable for normalizing seasonal performance across different playing time contexts. Experience indicators including `games_played` provided meaningful context about player reliability and health status.
+
+As demonstrated in <a href="#fig-feature_importance">Figure 8</a>, the absence of any same-game derived features from the importance rankings confirms our successful elimination of data leakage while maintaining predictive capability. The dominance of seasonal statistics and historical rates validates our interpretation that established player ability, rather than game-specific circumstances, drives the primary predictive signal in our models.
+
+Contextual factors like `season` and `is_home` showed moderate importance, suggesting systematic differences in performance across these dimensions. The absence of any same-game derived features from the top importance rankings confirms our successful elimination of data leakage while maintaining predictive capability.
+
+### Model Calibration and Odds Data Integration
+
+A critical aspect of our modeling approach was ensuring well-calibrated probability outputs suitable for betting applications. Our calibration analysis demonstrated that all models produced probability estimates closely aligned with observed outcome frequencies, essential for comparing model predictions with betting market prices.
+
+The ROC analysis confirmed consistent discriminative ability across different target variables, with all models achieving meaningful separation between positive and negative cases despite the challenging nature of individual player prediction.
+
+### Planned Integration with Betting Market Data
+
+To evaluate whether our statistical models can identify profitable betting opportunities, we will integrate our calibrated probability predictions with real-time odds data from multiple sportsbooks. This integration represents the critical next phase of our hybrid modeling approach, where statistical predictions meet market-based information.
+
+Our odds data infrastructure captures player prop lines from major sportsbooks including DraftKings, FanDuel, BetMGM, and Caesars across the key markets we predict: hits over 0.5, hits over 1.5, and total bases over 1.5. By implementing comprehensive odds shopping across these platforms, we can identify the most favorable lines available for each predicted outcome, maximizing potential value when our model probabilities diverge significantly from market prices.
+
+The integration methodology will compare our calibrated model probabilities directly with implied probabilities from betting lines, accounting for sportsbook margins to identify genuine value opportunities. For instance, if our model assigns a 0.70 probability to a player recording 1+ hits, but the best available odds imply only a 0.60 probability (after margin adjustment), this represents a potential value bet. Consistent application of this approach across hundreds of daily prop opportunities will test whether our statistical edge translates to profitable betting outcomes.
 
 ### Integration with Matchup Analysis
 
-Our machine learning approach complements rather than replaces the interactive matchup analysis. While the dashboard excels at identifying specific daily opportunities through pitcher-batter historical data and pitch-type analysis, the ML models provide systematic screening capabilities across all players and games.
+Our machine learning approach complements the interactive matchup analysis by providing automated screening capabilities across all players and games. While the dashboard excels at identifying specific daily opportunities through pitcher-batter historical data and pitch-type analysis, the ML models can evaluate hundreds of prop opportunities simultaneously using consistent statistical criteria.
 
-The integration potential is significant: ML models can identify players whose predicted performance substantially differs from betting market prices, while the dashboard can provide contextual validation through matchup-specific insights. This hybrid approach leverages both the systematic pattern recognition capabilities of machine learning and the nuanced situational analysis that human expertise provides.
-
-Future development will focus on incorporating pitcher matchup data directly into the ML feature set, potentially using the dashboard's RV/100 calculations as additional predictive variables. This integration would create a comprehensive system combining systematic prediction with situational analysis.
-
-### Limitations and Future Development
-
-Our current model implementation represents a solid foundation with clear paths for enhancement. The 46.9% seasonal data merge rate indicates opportunity for improved data integration, particularly through expanded player identification mapping or alternative data sources for players with limited FanGraphs coverage.
-
-The feature set, while comprehensive, could benefit from additional temporal variables such as rolling averages over recent games, rest days since last appearance, and pitcher-specific matchup factors. Weather conditions, ballpark factors, and lineup position represent additional contextual variables that could enhance predictive accuracy.
-
-Most importantly, our current evaluation uses random train-test splits rather than temporal validation. Future iterations should implement time-based splits where models train on historical data and predict genuinely future outcomes, providing more realistic assessment of practical performance.
-
-From a betting application perspective, integration with live odds data remains the critical next step. While our models produce well-calibrated probabilities, systematic value identification requires comparison with actual bookmaker prices across multiple sportsbooks. The odds data infrastructure described in our data engineering section provides the foundation for this development.
-
-Despite these limitations, our machine learning pipeline demonstrates strong performance relative to academic benchmarks and provides a scalable complement to manual matchup analysis. The systematic nature of the ML approach enables evaluation of hundreds of daily prop opportunities, while the dashboard provides detailed analysis of the most promising subset identified through algorithmic screening.
+This integration allows ML models to identify players whose predicted performance substantially differs from betting market prices, while the dashboard provides contextual validation through matchup-specific insights. The hybrid approach leverages both algorithmic pattern recognition capabilities and nuanced situational analysis for comprehensive opportunity identification.
