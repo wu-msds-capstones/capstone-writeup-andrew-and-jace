@@ -1,1 +1,36 @@
 # Conclusions
+
+## Key findings
+- Bullpen performance is a key driver of scoring: Relief pitcher stats, particularly ERA and innings pitched—were strong predictors of team run totals, often more so than starter metrics. This is intuitive: when a starting pitcher struggles, they're removed early, forcing greater reliance on the bullpen. This creates opportunities to exploit bullpen fatigue or depth mismatches. In future work, incorporating contextual bullpen data-- such as relievers’ recent usage or rest days could enhance predictive power. For example, a reliever who has pitched on consecutive days is less likely to appear a third time, which could impact late-game run prevention.
+
+- Expected stats signal potential shifts: Gaps between actual and expected batting average (xBA) can correspond with changes in team scoring, indicating both positive and negative regression toward underlying performance levels. 
+
+
+## Implications
+
+
+
+
+
+
+
+
+## Ethical Considerations
+
+### Data Privacy and Sources
+
+The data utilized in this research consists entirely of publicly available information from professional baseball games, including Statcast measurements, player performance statistics, and sportsbook pricing data from both regulated and offshore operators. No personally identifiable information beyond public player names and performance metrics was collected. All data represents factual, objective measures that are routinely published within the sports analytics community.
+
+### Responsible Gambling Considerations
+
+The primary ethical consideration in this research concerns its potential application to sports betting activities. Several critical limitations and risks must be emphasized:
+
+**No Guaranteed Profits**: Even if theoretical positive expected value opportunities are identified, variance inherent in probabilistic outcomes means that substantial losses remain possible over both short and extended periods. Historical performance does not guarantee future results.
+
+**Variance and Risk Management**: The high variance nature of sports betting means that even systematically profitable approaches can experience extended losing streaks that exceed many individuals' financial tolerance. Anyone considering application of these findings must thoroughly understand proper bankroll management principles and position sizing strategies.
+
+**Problem Gambling Risks**: This research is intended solely for academic and educational purposes. We strongly advise that anyone considering wagering activities seek education on responsible gambling practices and never risk money they cannot afford to lose entirely.
+
+**Market Evolution**: Betting markets continuously evolve as operators adjust to new information. Any identified inefficiencies may diminish as markets adapt, potentially rendering historical findings obsolete.
+
+**Disclaimer**: This research is conducted for academic purposes only. Any application of these findings to actual betting activities is undertaken entirely at the user's own risk. The authors accept no responsibility for financial losses that may result from application of this research. Readers are strongly encouraged to thoroughly research proper bankroll management techniques and to seek professional guidance on responsible gambling practices before considering any wagering activities.

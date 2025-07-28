@@ -15,14 +15,14 @@ By integrating data from opposing starting pitchers, opposing relievers, and the
 
 To gain insight into team scoring behavior, we computed summary statistics for runs scored per game. This helped us examine the distribution of offensive output and understand typical scoring ranges across all team-game observations.
 
-<figure>
+<figure id="fig-run_dist">
   <img src="images/run_dist.png" alt="Run Distribution" width="800">
   <figcaption style="font-size: 8px; color: #555;">
     Figure 2: Team-level distribution of runs scored per game over the specified time period
   </figcaption>
 </figure>
 
-The distribution of runs scored per game was right-skewed, with a few high-scoring outliers pulling the mean upward. The median was 4 runs, while the mean was slightly higher at 4.6, reflecting the impact of those outliers. This mean value serves as a useful benchmark when modeling run production in machine learning, especially when deciding how to frame our prediction target.
+The distribution of runs scored per game, as seen in <a href="#fig-run_dist">Figure 2</a>, was right-skewed, with a few high-scoring outliers pulling the mean upward. The median was 4 runs, while the mean was slightly higher at 4.6, reflecting the impact of those outliers. This mean value serves as a useful benchmark when modeling run production in machine learning, especially when deciding how to frame our prediction target.
 
 We then focused on identifying which features were most indicative of how many runs a team scores in a game. To do this, we built a linear regression model using a wide range of pitching and hitting statistics. However,  many baseball metrics are inherently correlated, for example, batting average contributes heavily to a weighted on base average (wOBA). Thus, we encountered significant multicollinearity. To address this, we systematically filtered out redundant variables, prioritizing those that captured unique predictive value. After this reduction process, we finalized a simplified linear model using the following variables: `sp_era`, `sp_ba`, `sp_slg`, `rp_era`, `rp_slg`, `rp_ip`, `b_ba`, `b_sum_so`, `b_slg`. 
 
@@ -41,7 +41,7 @@ The law of averages suggest that after a large number of trials, outcomes tend t
 
 Expected batting average is a Statcast metric designed to estimate the likelihood that a batted ball will result in a hit. It is based on two key factors: exit velocity (how hard the ball is hit) and the launch angle (the angle at which the ball hits off the bat). Baseball is an incredibly difficult sport, and surface-level stats don’t always tell the full story. That’s where expected statistics come in—they often provide a more accurate picture of a player’s performance. For example, a hitter might crush a ball at 115 MPH, but if it’s hit directly at a defender, it results in an out. On the other hand, a softly hit ball at just 40 MPH could drop into the perfect spot for a hit. xBA accounts for these inconsistencies by using historical data to estimate how often similar batted balls have gone for hits. While not perfect, it offers a more context-aware view of hitting performance.
 
-<figure>
+<figure id="fig-ba">
   <img src="images/ba.png" alt="Batting Average" width="800">
   <figcaption style="font-size: 8px; color: #555;">
     Figure 3: Visualizing whether teams underperforming and overperforming their respective expected batting average metric.
@@ -52,26 +52,28 @@ Since we are trying to understand team run production it makes sense to inspect 
 
 Conversely, teams currently overperforming their xBA may regress downward, with fewer hits falling in, resulting in fewer runs scored.
 
-Tracking these differences provides valuable insight into which teams may be poised for a shift in offensive production based on their underlying quality of contact. 
+Tracking these differences (<a href="#fig-ba">Figure 3</a>) provides valuable insight into which teams may be poised for a shift in offensive production based on their underlying quality of contact. 
 
-<figure>
+<figure id="fig-run_diff">
   <img src="images/run_diff.png" alt="Run Differences" width="800">
   <figcaption style="font-size: 8px; color: #555;">
     Figure 4: Identifing the teams with the largest increases and decreases in average runs scored following the All-Star Break.
   </figcaption>
 </figure>
 
-A pattern emerges when comparing team-level batting average (BA) versus expected batting average (xBA) with changes in run production post-All-Star Break. Teams that had been underperforming their xBA, such as CLE, CWS, KC, and HOU are now scoring significantly more runs, suggesting positive regression. Conversely, overperforming teams like BOS and SEA have seen their run production drop, hinting at regression to the mean. Teams whose actual performance closely matched their expected metrics experienced relatively stable scoring.
+A pattern emerges when comparing team-level batting average (BA) versus expected batting average (xBA) with changes in run production post-All-Star Break. Teams that had been underperforming their xBA, such as CLE, CWS, KC, and HOU are now scoring significantly more runs (<a href="#fig-run_diff">Figure 4</a>), suggesting positive regression. Conversely, overperforming teams like BOS and SEA have seen their run production drop, hinting at regression to the mean. Some teams that showed a noticeable change in scoring also had differences between actual and expected batting averages, though those differences were relatively small. (<a href="#fig-ba2">Figure 5</a>).
 
 The Rockies appear to be overperforming their expected batting average (xBA), but this is likely a product of Coors Field-- MLB’s most hitter-friendly park. The high altitude and thin air in Denver inflate offensive stats by reducing air resistance and allowing balls to travel farther. This "Coors Field Effect" regularly skews batting metrics, making Colorado’s apparent overperformance more a reflection of park conditions than unsustainable hitting.
 
-<figure>
+<figure id = "fig-ba2">
   <img src="images/ba2.png" alt="Batting Average Overlayed" width="800">
   <figcaption style="font-size: 8px; color: #555;">
     Figure 5: Linking changes in run production to batting average overperformance and underperformance by teams with the largest differences post All-Star Break.
   </figcaption>
 </figure>
 
+### Machine Learning 
+Still working on a machine learning model based on the analysis above.
 
 ## Prop Betting Analysis for Batters
 We then explored hitter-focused prop bets, specifically whether a batter would record at least one hit or exceed two total bases in a given game. Total bases are calculated as follows: a single counts as one, a double as two, a triple as three, and a home run as four. To surpass two total bases, a player could hit a double, triple, home run, or combine multiple hits (e.g., two singles). Any combination totaling more than two qualifies for the over.
@@ -111,9 +113,12 @@ Our machine learning approach was grounded in established sports betting researc
 
 We framed individual player prop prediction as a series of binary classification problems, creating target variables that directly corresponded to common betting markets: whether a player would record more than 0.5 hits (`hits_over_0.5`), more than 1.5 hits (`hits_over_1.5`), more than 1.5 total bases (`total_bases_over_1.5`), and more than 0.5 home runs (`home_runs_over_0.5`). This approach aligned our statistical models with practical betting applications while maintaining methodological rigor.
 
-Our feature engineering process combined multiple temporal perspectives to capture both long-term player ability and recent form. From seasonal batting statistics, we extracted baseline performance metrics including `season_batting_avg`, `season_ops`, `season_woba`, and `season_wrc_plus` to establish each player's fundamental skill level. We augmented these with derived historical rates such as `historical_hr_rate` and `historical_hit_rate`, calculated from seasonal totals to provide rate-based performance expectations.
+### Feature Engineering
+Our feature engineering process combined multiple temporal perspectives to create predictive variables optimized for prop betting outcomes. From the `batting_statcast` table, we extracted season-long context including `batting_avg`, `ops`, `woba`, and `wrc_plus` to establish baseline player ability. We calculated recent form indicators through game-level performance rates and Statcast-derived metrics such as hard-hit ball percentage and average exit velocity. Most critically, we engineered binary target variables matching common prop betting markets: `hits_over_0.5`, `hits_over_1.5`, `total_bases_over_1.5`, and `home_runs_over_0.5`, with target distributions ranging from 11.5% (home runs) to 61.1% (hits).
 
 To capture recent performance and contact quality, we integrated advanced Statcast metrics from our pitch-level data aggregation. Key features included `avg_exit_velo` (average exit velocity), `hard_hit_rate` (percentage of batted balls exceeding 95 mph), and contextual factors such as `is_home` and `season` indicators. This combination of historical context and recent form created a comprehensive feature set spanning 11 primary variables.
+
+The final integrated dataset achieved a 46.9% seasonal data merge rate, yielding 7,028 records with complete feature sets suitable for machine learning model development. This represented a deliberate trade-off between data completeness and prediction accuracy, focusing on players with sufficient historical context for reliable modeling.
 
 ### Model Architecture and Algorithm Selection
 

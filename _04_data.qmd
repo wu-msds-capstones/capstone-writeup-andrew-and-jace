@@ -48,10 +48,6 @@ In the end the data was organized and combined using third normal form (3NF) to 
 
 
 
-
-
-
-
 ## Data Dictionaries
 ::: {.callout-note collapse=true title="batter_pitches"}
 This table contains underlying aggregated statisical data, which will not show up in the typical box score.(Baseball Savant)
