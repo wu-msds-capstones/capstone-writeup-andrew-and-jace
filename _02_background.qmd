@@ -2,7 +2,7 @@
 
 ## Sports Betting Market Structure and Efficiency
 
-The modern sports betting landscape has evolved dramatically with the legalization of online wagering across multiple jurisdictions, creating increasingly sophisticated and competitive markets. Academic research on sports betting market efficiency has produced mixed conclusions, with studies finding varying degrees of informational efficiency depending on sport, market type, and temporal factors (Hubáček et al., 2019). While primary markets for game outcomes tend toward efficiency through large betting volumes and professional analysis, secondary markets for player propositions often exhibit greater pricing disparities due to lower liquidity and reduced analytical attention.
+The modern sports betting landscape has evolved dramatically with the legalization of online wagering across multiple jurisdictions, creating increasingly sophisticated and competitive markets. Academic research on sports betting market efficiency has produced mixed conclusions, with studies finding varying degrees of informational efficiency depending on sport, market type, and temporal factors [@Hubacek2019]. While primary markets for game outcomes tend toward efficiency through large betting volumes and professional analysis, secondary markets for player propositions often exhibit greater pricing disparities due to lower liquidity and reduced analytical attention.
 
 Market efficiency research has consistently identified persistent inefficiencies in proposition betting markets, particularly for individual player statistics where information processing may be less sophisticated than for primary game outcomes. These inefficiencies create potential opportunities for systematic approaches that can process large volumes of player performance data to identify mispriced betting opportunities.
 
@@ -10,11 +10,11 @@ The house edge inherent in sportsbook pricing represents the fundamental challen
 
 ## Predictive Modeling in Baseball Analytics
 
-Baseball analytics has undergone revolutionary advancement since the introduction of sabermetrics, with modern machine learning applications achieving increasingly sophisticated prediction capabilities. Huang and Li (2021) demonstrated that statistical models could achieve over 94% accuracy in MLB game outcome prediction using advanced feature selection techniques, while Li et al. (2022) developed comprehensive frameworks for identifying the most predictive baseball statistics for outcome prediction.
+Baseball analytics has undergone revolutionary advancement since the introduction of sabermetrics, with modern machine learning applications achieving increasingly sophisticated prediction capabilities. [@Huang2021] demonstrated that statistical models could achieve over 94% accuracy in MLB game outcome prediction using advanced feature selection techniques, while [@Li2022] developed comprehensive frameworks for identifying the most predictive baseball statistics for outcome prediction.
 
-However, prediction accuracy and betting profitability represent fundamentally different optimization targets. Walsh and Joshi (2024) provided critical insights demonstrating that model calibration matters more than raw accuracy for betting applications, with calibration-optimized models achieving +34.69% ROI compared to -35.17% for accuracy-focused approaches. This finding has profound implications for sports betting model development, suggesting that traditional machine learning evaluation metrics may be counterproductive for betting applications.
+However, prediction accuracy and betting profitability represent fundamentally different optimization targets. [@Walsh2024] provided critical insights demonstrating that model calibration matters more than raw accuracy for betting applications, with calibration-optimized models achieving +34.69% ROI compared to -35.17% for accuracy-focused approaches. This finding has profound implications for sports betting model development, suggesting that traditional machine learning evaluation metrics may be counterproductive for betting applications.
 
-Recent research has increasingly focused on ensemble methods for sports prediction, with Galekwa et al. (2024) finding that combining multiple algorithms consistently outperforms single-model approaches across various sports betting contexts. This research supports the development of comprehensive modeling frameworks that leverage multiple analytical techniques rather than relying on individual algorithms.
+Recent research has increasingly focused on ensemble methods for sports prediction, with [@Galekwa2024] finding that combining multiple algorithms consistently outperforms single-model approaches across various sports betting contexts. This research supports the development of comprehensive modeling frameworks that leverage multiple analytical techniques rather than relying on individual algorithms.
 
 ## Strategic Approaches to Sports Betting
 
@@ -22,7 +22,7 @@ Sports betting strategy research has traditionally distinguished between bottom-
 
 Top-down strategies focus on market-based analysis, examining line movements, betting volumes, and cross-market price discrepancies to identify temporary value opportunities. These approaches are generally more accessible to implement but face significant scalability limitations as successful practitioners often find themselves restricted or banned by sportsbooks that view systematic market exploitation as detrimental to their profitability models.
 
-Research has documented the effectiveness of both approaches under specific conditions, but has largely failed to examine their potential integration. Hubáček et al. (2019) achieved systematic profitability by explicitly reducing correlation with bookmaker predictions while maintaining predictive accuracy, suggesting that the most effective approaches may involve developing independent probabilistic assessments that deliberately diverge from market consensus.
+Research has documented the effectiveness of both approaches under specific conditions, but has largely failed to examine their potential integration. [@Hubacek2019] achieved systematic profitability by explicitly reducing correlation with bookmaker predictions while maintaining predictive accuracy, suggesting that the most effective approaches may involve developing independent probabilistic assessments that deliberately diverge from market consensus.
 
 ## Research Gaps and Methodological Innovation
 
