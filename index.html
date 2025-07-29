@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>MLB Betting Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-2fef5ea3f8957b3e4ecc936fc74692ca.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-b15df86742554840d07b04d0f56a07e9.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+
+
+<meta name="citation_title" content="MLB Betting Analysis">
+<meta name="citation_author" content="Andrew Cerqui">
+<meta name="citation_author" content="Jace Higa">
+<meta name="citation_language" content="en">
+<meta name="citation_reference" content="citation_title=The sportsbook edge: Understanding how the house always wins;,citation_abstract=Summary This article explains how sportsbooks maintain a built-in edge by structuring odds to favor the them. It details how -110 odds require bettors to win more than 52.4% of bets to break even, highlighting the impact of vig on long-term profitability.;,citation_author=undefined Naomi;,citation_publication_date=2023;,citation_cover_date=2023;,citation_year=2023;,citation_fulltext_html_url=https://allthepicks.com/betting-edge/;">
+<meta name="citation_reference" content="citation_title=Exploiting sports-betting market using machine learning;,citation_abstract=The study developed a profitable sports betting system using three novel components: (1) explicitly reducing correlation with bookmaker predictions while maintaining accuracy, (2) using convolutional neural networks for player-level feature aggregation, and (3) applying modern portfolio theory for optimal bet distribution. The system achieved systematic positive returns on NBA data from 2006-2014.;,citation_author=Ondřej Hubáček;,citation_author=Gustav Šourek;,citation_author=Filip Železný;,citation_publication_date=2019;,citation_cover_date=2019;,citation_year=2019;,citation_fulltext_html_url=https://www.sciencedirect.com/science/article/abs/pii/S156849461930007X;,citation_doi=10.1016/j.asoc.2019.105654;,citation_issn=1568-4946;,citation_volume=83;,citation_journal_title=Applied Soft Computing;">
+<meta name="citation_reference" content="citation_title=Use of machine learning and deep learning to predict the outcomes of major league baseball matches;,citation_abstract=Compared 1DCNN, ANN, and SVM models for MLB prediction using 2019 season data. Achieved highest prediction accuracies of 93.4%, 93.91%, and 93.90% respectively before feature selection, and 94.18% and 94.16% with ANN and SVM after feature selection. This was the first application of 1DCNN to MLB prediction.;,citation_author=Mei-Ling Huang;,citation_author=Yi-Zhen Li;,citation_publication_date=2021;,citation_cover_date=2021;,citation_year=2021;,citation_fulltext_html_url=https://www.mdpi.com/2076-3417/11/10/4499;,citation_issue=10;,citation_doi=10.3390/app11104499;,citation_issn=2076-3417;,citation_volume=11;,citation_journal_title=Applied Sciences;">
+<meta name="citation_reference" content="citation_title=Exploring and selecting features to predict the next outcomes of MLB games;,citation_abstract=Developed a comprehensive feature selection framework for MLB prediction, analyzing which statistics provide the most predictive value for game outcomes. The study systematically evaluated different combinations of batting, pitching, and situational variables to optimize prediction accuracy.;,citation_author=Shuo-Fang Li;,citation_author=Mei-Ling Huang;,citation_author=Yi-Zhen Li;,citation_publication_date=2022;,citation_cover_date=2022;,citation_year=2022;,citation_fulltext_html_url=https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8871522/;,citation_issue=2;,citation_doi=10.3390/e24020264;,citation_issn=1099-4300;,citation_volume=24;,citation_journal_title=Entropy;">
+<meta name="citation_reference" content="citation_title=Machine learning for sports betting: Should model selection be based on accuracy or calibration?;,citation_abstract=Tested whether calibration or accuracy should drive model selection for sports betting. Using NBA data, found that selecting models based on calibration rather than accuracy led to dramatically better returns: +34.69% ROI versus -35.17% ROI. In the best case scenario, calibration-based selection achieved +36.93% versus +5.56% for accuracy-based selection.;,citation_author=Sean Walsh;,citation_author=Mayukh Joshi;,citation_publication_date=2024;,citation_cover_date=2024;,citation_year=2024;,citation_fulltext_html_url=https://www.sciencedirect.com/science/article/pii/S266682702400015X;,citation_doi=10.1016/j.frl.2024.104814;,citation_issn=1544-6123;,citation_volume=60;,citation_journal_title=Finance Research Letters;">
+<meta name="citation_reference" content="citation_title=A systematic review of machine learning in sports betting: Techniques, challenges, and future directions;,citation_abstract=Comprehensive review of ML applications in sports betting across multiple sports. Found that ensemble methods consistently outperform single models, with particular success in combining different algorithm types. For baseball specifically, identified that Markov processes and machine learning algorithms to predict pitch types and game outcomes show promise, emphasizing detailed pitch data importance.;,citation_author=René Manassé Galekwa;,citation_author=undefined colleagues;,citation_publication_date=2024;,citation_cover_date=2024;,citation_year=2024;,citation_fulltext_html_url=https://arxiv.org/html/2410.21484v1;,citation_journal_title=arXiv preprint arXiv:2410.21484;">
+<meta name="citation_reference" content="citation_title=MLB game outcome prediction using machine learning;,citation_abstract=Investigated MLB game outcome prediction using random forests and XGBoost with historical Retrosheet data (1930-2016). Achieved 55.52% accuracy in predicting game outcomes as binary classification using XGBoost with season data only, outperforming random guessing and simple home team prediction.;,citation_author=T. Elfrink;,citation_publication_date=2018;,citation_cover_date=2018;,citation_year=2018;,citation_publisher=University of Pennsylvania;">
+<meta name="citation_reference" content="citation_title=Efficient spread betting markets: A literature review;,citation_abstract=Are simple trading strategies profitable? It is a question that has been on the minds of academics and practitioners for decades. In this paper, we review the longstanding literature on trading strategies in spread betting (also known as handicap betting), a popular sports betting microstructure. We review over 600 strategy implementations and find that market efficiency and systematic misperceptions are not mutually exclusive per se. Predictable glitches occur, but they are too small to be profitably exploited which is consistent with efficient markets.;,citation_author=Jonas Vandenbruaene;,citation_author=Jan Annaert;,citation_author=Marc De Ceuster;,citation_publication_date=2022;,citation_cover_date=2022;,citation_year=2022;,citation_fulltext_html_url=https://journals.sagepub.com/doi/10.1177/15270025211071042;,citation_issue=4;,citation_doi=10.1177/15270025211071042;,citation_issn=1527-0025;,citation_volume=23;,citation_journal_title=Journal of Sports Economics;">
+</head>
+
+<body class="quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">MLB Betting Analysis</h1>
+            <p class="subtitle lead">Pitch, Hit, Profit - A Data-Backed Approach to Projecting Favorable Outcomes in MLB Betting</p>
+          </div>
+
+    
+    <div class="quarto-title-meta-container">
+      <div class="quarto-title-meta-column-start">
+        
+        <div class="quarto-title-meta">
+
+                <div>
+            <div class="quarto-title-meta-heading">Authors</div>
+            <div class="quarto-title-meta-contents">
+                        <p>Andrew Cerqui </p>
+                        <p>Jace Higa </p>
+                      </div>
+          </div>
+                
+          
+                
+              </div>
+      </div>
+      <div class="quarto-title-meta-column-end quarto-other-formats-target">
+      </div>
+    </div>
+
+
+
+    <div class="quarto-other-links-text-target">
+    </div>  </div>
+</header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background">Background</a>
+  <ul class="collapse">
+  <li><a href="#sports-betting-market-structure-and-efficiency" id="toc-sports-betting-market-structure-and-efficiency" class="nav-link" data-scroll-target="#sports-betting-market-structure-and-efficiency">Sports Betting Market Structure and Efficiency</a></li>
+  <li><a href="#predictive-modeling-in-baseball-analytics" id="toc-predictive-modeling-in-baseball-analytics" class="nav-link" data-scroll-target="#predictive-modeling-in-baseball-analytics">Predictive Modeling in Baseball Analytics</a></li>
+  <li><a href="#strategic-approaches-to-sports-betting" id="toc-strategic-approaches-to-sports-betting" class="nav-link" data-scroll-target="#strategic-approaches-to-sports-betting">Strategic Approaches to Sports Betting</a></li>
+  <li><a href="#research-gaps-and-methodological-innovation" id="toc-research-gaps-and-methodological-innovation" class="nav-link" data-scroll-target="#research-gaps-and-methodological-innovation">Research Gaps and Methodological Innovation</a></li>
+  <li><a href="#mlb-as-an-analytical-environment" id="toc-mlb-as-an-analytical-environment" class="nav-link" data-scroll-target="#mlb-as-an-analytical-environment">MLB as an Analytical Environment</a></li>
+  <li><a href="#research-objective-and-contribution" id="toc-research-objective-and-contribution" class="nav-link" data-scroll-target="#research-objective-and-contribution">Research Objective and Contribution</a></li>
+  </ul></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a>
+  <ul class="collapse">
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources">Data Sources</a>
+  <ul class="collapse">
+  <li><a href="#statsapi" id="toc-statsapi" class="nav-link" data-scroll-target="#statsapi">statsapi</a></li>
+  <li><a href="#mlb.com" id="toc-mlb.com" class="nav-link" data-scroll-target="#mlb.com">mlb.com</a></li>
+  <li><a href="#baseball-savant" id="toc-baseball-savant" class="nav-link" data-scroll-target="#baseball-savant">Baseball Savant</a></li>
+  <li><a href="#pybaseball" id="toc-pybaseball" class="nav-link" data-scroll-target="#pybaseball">pybaseball</a></li>
+  <li><a href="#oddsapi" id="toc-oddsapi" class="nav-link" data-scroll-target="#oddsapi">oddsapi</a></li>
+  </ul></li>
+  <li><a href="#data-organization" id="toc-data-organization" class="nav-link" data-scroll-target="#data-organization">Data Organization</a></li>
+  <li><a href="#data-dictionaries" id="toc-data-dictionaries" class="nav-link" data-scroll-target="#data-dictionaries">Data Dictionaries</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
+  <ul class="collapse">
+  <li><a href="#overunder-run-scoring-analysis" id="toc-overunder-run-scoring-analysis" class="nav-link" data-scroll-target="#overunder-run-scoring-analysis">Over/Under Run Scoring Analysis</a>
+  <ul class="collapse">
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
+  <li><a href="#actual-vs.-expected-batting-average" id="toc-actual-vs.-expected-batting-average" class="nav-link" data-scroll-target="#actual-vs.-expected-batting-average">Actual vs.&nbsp;Expected Batting Average</a></li>
+  <li><a href="#machine-learning" id="toc-machine-learning" class="nav-link" data-scroll-target="#machine-learning">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="#prop-betting-analysis-for-batters" id="toc-prop-betting-analysis-for-batters" class="nav-link" data-scroll-target="#prop-betting-analysis-for-batters">Prop Betting Analysis for Batters</a>
+  <ul class="collapse">
+  <li><a href="#pitcher-batter-preview" id="toc-pitcher-batter-preview" class="nav-link" data-scroll-target="#pitcher-batter-preview">Pitcher-Batter Preview</a></li>
+  </ul></li>
+  <li><a href="#machine-learning-for-individual-player-props" id="toc-machine-learning-for-individual-player-props" class="nav-link" data-scroll-target="#machine-learning-for-individual-player-props">Machine Learning for Individual Player Props</a>
+  <ul class="collapse">
+  <li><a href="#statistical-thinking-and-model-development" id="toc-statistical-thinking-and-model-development" class="nav-link" data-scroll-target="#statistical-thinking-and-model-development">Statistical Thinking and Model Development</a></li>
+  <li><a href="#feature-engineering-and-data-leakage-prevention" id="toc-feature-engineering-and-data-leakage-prevention" class="nav-link" data-scroll-target="#feature-engineering-and-data-leakage-prevention">Feature Engineering and Data Leakage Prevention</a></li>
+  <li><a href="#model-architecture-and-algorithm-selection" id="toc-model-architecture-and-algorithm-selection" class="nav-link" data-scroll-target="#model-architecture-and-algorithm-selection">Model Architecture and Algorithm Selection</a></li>
+  <li><a href="#model-performance-and-validation" id="toc-model-performance-and-validation" class="nav-link" data-scroll-target="#model-performance-and-validation">Model Performance and Validation</a></li>
+  <li><a href="#feature-importance-and-model-interpretation" id="toc-feature-importance-and-model-interpretation" class="nav-link" data-scroll-target="#feature-importance-and-model-interpretation">Feature Importance and Model Interpretation</a></li>
+  <li><a href="#model-calibration-and-odds-data-integration" id="toc-model-calibration-and-odds-data-integration" class="nav-link" data-scroll-target="#model-calibration-and-odds-data-integration">Model Calibration and Odds Data Integration</a></li>
+  <li><a href="#planned-integration-with-betting-market-data" id="toc-planned-integration-with-betting-market-data" class="nav-link" data-scroll-target="#planned-integration-with-betting-market-data">Planned Integration with Betting Market Data</a></li>
+  <li><a href="#integration-with-matchup-analysis" id="toc-integration-with-matchup-analysis" class="nav-link" data-scroll-target="#integration-with-matchup-analysis">Integration with Matchup Analysis</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a>
+  <ul class="collapse">
+  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key Findings</a>
+  <ul class="collapse">
+  <li><a href="#overunder-runs-bets" id="toc-overunder-runs-bets" class="nav-link" data-scroll-target="#overunder-runs-bets">Over/Under Runs Bets</a></li>
+  <li><a href="#prop-bets" id="toc-prop-bets" class="nav-link" data-scroll-target="#prop-bets">Prop Bets</a></li>
+  </ul></li>
+  <li><a href="#implications" id="toc-implications" class="nav-link" data-scroll-target="#implications">Implications</a></li>
+  <li><a href="#future-directions" id="toc-future-directions" class="nav-link" data-scroll-target="#future-directions">Future Directions</a></li>
+  <li><a href="#ethical-considerations" id="toc-ethical-considerations" class="nav-link" data-scroll-target="#ethical-considerations">Ethical Considerations</a>
+  <ul class="collapse">
+  <li><a href="#data-privacy-and-sources" id="toc-data-privacy-and-sources" class="nav-link" data-scroll-target="#data-privacy-and-sources">Data Privacy and Sources</a></li>
+  <li><a href="#responsible-gambling-considerations" id="toc-responsible-gambling-considerations" class="nav-link" data-scroll-target="#responsible-gambling-considerations">Responsible Gambling Considerations</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+  
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>A core principle of financial independence is the ability to generate passive income– leveraging existing capital to create returns with minimal ongoing effort. Traditional strategies include investing in dividend-paying stocks, exchange-traded funds (ETFs), or income-generating real estate. While these approaches offer relatively stable long-term gains, some investors have begun exploring alternative, higher-risk opportunities such as sports betting. Though more volatile, betting markets can offer the potential for faster and higher returns, raising the question: can a data-driven approach to betting, particularly in Major League Baseball (MLB), serve as a viable income stream?</p>
+<p>Baseball is a team sport played between two sides of nine players, where the goal is to score runs by hitting a pitched ball and advancing around four bases. Teams alternate between offense (batting) and defense (pitching and fielding), with each half-inning ending after three outs. A standard game consists of nine innings. While the rules are relatively simple, modern baseball is highly strategic and data-driven. Teams constantly analyze player matchups, pitching tendencies, and situational probabilities to gain an edge, which is exactly what makes the sport so appealing for sports betting as well.</p>
+<p>With the rise of advanced statistics and real-time data, bettors now have a wide range of wagering options. These include moneylines (who wins the game), over/unders (total runs scored), and player props like total bases, which track how many bases a player earns through hits in a given game. Despite the availablity of data, many sports bettors rely on gut and intuition but it has proved to be a losing strategy for most. Compounding this challenge is the fact that sportsbooks maintain a built-in edge through the way odds are structured. For example, even in an evenly matched game, both teams would be listed at -110 odds instead of +100. This means a $100 winning bet would return just $90.90 in profit, rather than $100, creating a margin that favors the sportsbook. Thus, users have to win more than 52.4% of their bets to just break even <span class="citation" data-cites="AllThePicksEdge2023">(<a href="#ref-AllThePicksEdge2023" role="doc-biblioref">Naomi 2023</a>)</span>.</p>
+<p>In this context, leveraging the vast amount of granular baseball data becomes crucial. With its rich statistical history and highly measurable in-game actions, baseball is one of the most analytically robust sports. It offers bettors an opportunity to apply data-driven strategies and models to gain an edge over the market.</p>
+<p>We aim to investigate whether recent player performance, historical trends, advanced metrics, and variations in sportsbook odds can be leveraged to identify profitable opportunities in Major League Baseball betting markets.</p>
+</section>
+<section id="background" class="level1">
+<h1>Background</h1>
+<section id="sports-betting-market-structure-and-efficiency" class="level2">
+<h2 class="anchored" data-anchor-id="sports-betting-market-structure-and-efficiency">Sports Betting Market Structure and Efficiency</h2>
+<p>The modern sports betting landscape has evolved dramatically with the legalization of online wagering across multiple jurisdictions, creating increasingly sophisticated and competitive markets. Academic research on sports betting market efficiency has produced mixed conclusions, with studies finding varying degrees of informational efficiency depending on sport, market type, and temporal factors <span class="citation" data-cites="Hubacek2019">(<a href="#ref-Hubacek2019" role="doc-biblioref">Hubáček, Šourek, and Železný 2019</a>)</span>. While primary markets for game outcomes tend toward efficiency through large betting volumes and professional analysis, secondary markets for player propositions often exhibit greater pricing disparities due to lower liquidity and reduced analytical attention.</p>
+<p>Market efficiency research has consistently identified persistent inefficiencies in proposition betting markets, particularly for individual player statistics where information processing may be less sophisticated than for primary game outcomes. These inefficiencies create potential opportunities for systematic approaches that can process large volumes of player performance data to identify mispriced betting opportunities.</p>
+<p>The house edge inherent in sportsbook pricing represents the fundamental challenge for profitable betting strategies. Standard odds structures ensure that sportsbooks maintain mathematical advantages even in efficiently priced markets, requiring bettors to achieve win rates substantially above 50% to generate positive returns. This edge varies across bet types and operators, with player propositions often carrying higher margins than primary game markets.</p>
+</section>
+<section id="predictive-modeling-in-baseball-analytics" class="level2">
+<h2 class="anchored" data-anchor-id="predictive-modeling-in-baseball-analytics">Predictive Modeling in Baseball Analytics</h2>
+<p>Baseball analytics has undergone revolutionary advancement since the introduction of sabermetrics, with modern machine learning applications achieving increasingly sophisticated prediction capabilities. <span class="citation" data-cites="Huang2021">(<a href="#ref-Huang2021" role="doc-biblioref">Huang and Li 2021</a>)</span> demonstrated that statistical models could achieve over 94% accuracy in MLB game outcome prediction using advanced feature selection techniques, while <span class="citation" data-cites="Li2022">(<a href="#ref-Li2022" role="doc-biblioref">Li, Huang, and Li 2022</a>)</span> developed comprehensive frameworks for identifying the most predictive baseball statistics for outcome prediction.</p>
+<p>However, prediction accuracy and betting profitability represent fundamentally different optimization targets. <span class="citation" data-cites="Walsh2024">(<a href="#ref-Walsh2024" role="doc-biblioref">Walsh and Joshi 2024</a>)</span> provided critical insights demonstrating that model calibration matters more than raw accuracy for betting applications, with calibration-optimized models achieving +34.69% ROI compared to -35.17% for accuracy-focused approaches. This finding has profound implications for sports betting model development, suggesting that traditional machine learning evaluation metrics may be counterproductive for betting applications.</p>
+<p>Recent research has increasingly focused on ensemble methods for sports prediction, with <span class="citation" data-cites="Galekwa2024">(<a href="#ref-Galekwa2024" role="doc-biblioref">Galekwa and colleagues 2024</a>)</span> finding that combining multiple algorithms consistently outperforms single-model approaches across various sports betting contexts. This research supports the development of comprehensive modeling frameworks that leverage multiple analytical techniques rather than relying on individual algorithms.</p>
+</section>
+<section id="strategic-approaches-to-sports-betting" class="level2">
+<h2 class="anchored" data-anchor-id="strategic-approaches-to-sports-betting">Strategic Approaches to Sports Betting</h2>
+<p>Sports betting strategy research has traditionally distinguished between bottom-up and top-down methodologies, each with distinct advantages and limitations. Bottom-up strategies build predictions from fundamental performance analysis, requiring sophisticated statistical modeling and comprehensive data infrastructure to develop probabilistic assessments that can outperform market consensus. While exceptionally challenging to implement successfully, these approaches offer the potential to identify market inefficiencies that persist over extended periods.</p>
+<p>Top-down strategies focus on market-based analysis, examining line movements, betting volumes, and cross-market price discrepancies to identify temporary value opportunities. These approaches are generally more accessible to implement but face significant scalability limitations as successful practitioners often find themselves restricted or banned by sportsbooks that view systematic market exploitation as detrimental to their profitability models.</p>
+<p>Research has documented the effectiveness of both approaches under specific conditions, but has largely failed to examine their potential integration. <span class="citation" data-cites="Hubacek2019">(<a href="#ref-Hubacek2019" role="doc-biblioref">Hubáček, Šourek, and Železný 2019</a>)</span> achieved profitability by explicitly reducing correlation with bookmaker predictions while maintaining predictive accuracy, suggesting that the most effective approaches may involve developing independent probabilistic assessments that deliberately diverge from market consensus.</p>
+</section>
+<section id="research-gaps-and-methodological-innovation" class="level2">
+<h2 class="anchored" data-anchor-id="research-gaps-and-methodological-innovation">Research Gaps and Methodological Innovation</h2>
+<p>Existing literature reveals a significant gap in formal examination of hybrid approaches that combine bottom-up predictive modeling with top-down market analysis. While practitioners may informally blend these strategies, academic research has not rigorously evaluated whether such integration provides superior risk-adjusted returns compared to either methodology employed independently.</p>
+<p>This gap is particularly notable given the complementary nature of these approaches: bottom-up modeling excels at identifying performance patterns that may be undervalued by markets, while top-down analysis can identify optimal timing and execution strategies for capitalizing on identified opportunities. The combination potentially addresses the primary weaknesses of each individual approach while amplifying their respective strengths.</p>
+<p>Furthermore, much of the existing research focuses on prediction accuracy rather than practical betting implementation, often overlooking critical factors such as bankroll management, market access limitations, and the sustainability of identified edges as markets adapt to repeated exploitation. These practical considerations are essential for translating theoretical modeling success into real-world profitability.</p>
+</section>
+<section id="mlb-as-an-analytical-environment" class="level2">
+<h2 class="anchored" data-anchor-id="mlb-as-an-analytical-environment">MLB as an Analytical Environment</h2>
+<p>Baseball presents unique advantages for data-driven betting analysis due to its extensive statistical history and the granular nature of recorded performance data. The sport’s discrete, measurable events enable precise statistical modeling, while the introduction of Statcast technology has created unprecedented opportunities for advanced analytical approaches incorporating biomechanical measurements and contact quality metrics.</p>
+<p>The individual nature of many baseball events—particularly batter versus pitcher confrontations—creates natural opportunities for player-specific proposition betting that may be less efficiently priced than aggregate team outcomes. Player proposition bets focus on individual statistical achievements rather than team outcomes, offering wagers on specific measurable events during a game.</p>
+<p>Two of the most common player propositions involve hits and total bases. A hit occurs when a batter successfully reaches base via single, double, triple, or home run. Sportsbooks typically offer over/under markets on whether a player will record more than 0.5 hits (at least one hit) or 1.5 hits (multiple hits) in a game. Total bases represent the cumulative value of a player’s hits: singles count as one base, doubles as two, triples as three, and home runs as four. A player hitting a double and a single would accumulate three total bases, while two singles would total two bases. Common total bases markets include over/under 1.5 or 2.5 bases.</p>
+<p>These individual performance markets offer several analytical advantages over team-based betting. Player propositions depend primarily on individual skill and recent form rather than complex team dynamics, creating more predictable statistical patterns. The large number of games played throughout the baseball season provides substantial sample sizes for statistical analysis while creating numerous daily betting opportunities across multiple markets and operators.</p>
+<p>Recent industry research has identified significant variation in sportsbook accuracy across different types of baseball bets, with player propositions showing greater pricing disparities between operators compared to primary game markets. This market fragmentation creates potential opportunities for strategic line shopping and value identification across multiple betting platforms <span class="citation" data-cites="Vandenbruaene2022">(<a href="#ref-Vandenbruaene2022" role="doc-biblioref">Vandenbruaene, Annaert, and Ceuster 2022</a>)</span>.</p>
+</section>
+<section id="research-objective-and-contribution" class="level2">
+<h2 class="anchored" data-anchor-id="research-objective-and-contribution">Research Objective and Contribution</h2>
+<p>Our investigation seeks to address the identified research gap by developing and evaluating a comprehensive hybrid framework that systematically integrates bottom-up machine learning prediction with top-down market analysis for MLB player proposition betting. The bottom-up component employs calibrated ensemble models trained on comprehensive Statcast and performance data to generate probabilistic assessments of individual player outcomes. The top-down component analyzes pricing patterns and market inefficiencies to identify optimal value opportunities and execution strategies.</p>
+<p>This methodological integration represents a novel contribution to sports betting literature, treating predictive modeling and market analysis as complementary information sources within a unified expected value maximization framework. By combining fundamental performance analysis with market intelligence, we aim to determine whether hybrid approaches can achieve superior risk-adjusted returns while addressing the practical implementation challenges that often limit the real-world applicability of theoretical betting strategies.</p>
+<p>The investigation employs rigorous statistical validation methodologies and addresses sustainability concerns often overlooked in academic literature, providing insights into both the theoretical potential and practical limitations of data-driven sports betting approaches in modern day market environments.</p>
+</section>
+</section>
+<section id="data" class="level1">
+<h1>Data</h1>
+<section id="data-sources" class="level2">
+<h2 class="anchored" data-anchor-id="data-sources">Data Sources</h2>
+<p>We collected data from five sources. StatsAPI, pybaseball, and oddsapi were accessed via a custom Python scraper, allowing us to ingest structured data on player performance, advanced metrics, and betting markets. MLB.com was scraped using an automated headless browser to extract dynamically loaded content not available through public APIs. Finally, we sourced supplemental tracking data from Baseball Savant by downloading static CSV files. Together, these pipelines enabled a comprehensive, multi-source dataset suitable for statistical analysis, machine learning, and real-world validation.</p>
+<section id="statsapi" class="level3">
+<h3 class="anchored" data-anchor-id="statsapi">statsapi</h3>
+<p>The first source was Major League Baseball’s public API, accessed using the statsapi Python package. This provided structured JSON data containing player metadata, team identifiers, game results, and detailed per-game statistics for batters and pitchers. This source served as the foundation for our dataset. To automate collection, we deployed the scraper on Railway with a scheduled task that runs daily at 7:00 AM PST, retrieving the previous day’s game data. The raw JSON was seamlessly parsed using SQL queries in PostgreSQL and loaded into a set of normalized relational tables.</p>
+<p>Our tables included players, teams, games, sides, batter_stats, and pitcher_stats. The players table contains a list of all individuals who appeared in at least one Major League Baseball game from June 21st to the present, each assigned a unique player_id for consistent identification. The teams table includes all 30 MLB teams, each mapped to a unique team_id, enabling team-level joins and analysis. The sides table identifies which team played as the home or away team in each game, an important distinction in baseball since the home team bats second and may have strategic advantages. The batter_stats and pitcher_stats tables store detailed per-game box score data, separated by hitting statsistics and pitching statistics. These stats include traditional and advanced metrics such as hits, home runs, and strikeouts for batters, and innings pitched, earned runs, and walks for pitchers. The use of primary keys such as player_id, game_id, and team_id allowed for seamless joins across tables. This structure enables efficient querying across player appearances, game contexts, and performance metrics, while remaining flexible enough to incorporate additional data sources such as advanced Statcast metrics and other tracking metrics.</p>
+</section>
+<section id="mlb.com" class="level3">
+<h3 class="anchored" data-anchor-id="mlb.com">mlb.com</h3>
+<p>Our second data source was MLB’s official website, mlb.com, which we scraped using Selenium, a Python package for automated browser interaction. This approach allowed us to extract pre-game matchup information from MLB.com’s preview pages, data not available through the public Stats API. The scraper was designed to click into each game’s “Preview” button, capture the relevant information, then return to the main page and repeat this process for all games scheduled on a given day. The extracted data included valuable context such as probable pitcher matchups and batter-vs-pitcher histories. This scraper was deployed on Railway and scheduled to run slightly earlier than the StatsAPI job, at 6:55 AM PST.</p>
+<p>A major challenge with this source was the absence of standardized identifiers such as player or game IDs. To address this, we created a composite key in the preview table using a combination of game_date, batter_name, and pitcher_name to uniquely identify each record. The JSON data gathered was poorly structured so it required an extensive use of regular expressions (REGEX), which made the parsing process significantly more complex.</p>
+<p>In the end, we produced a table called previews, which included the game date, projected starting pitcher, and historical performance data of each batter against that pitcher– such as home runs, at-bats, and batting average. This table allowed us to enrich our dataset by linking valuable pre-game context with actual in-game performance, enabling more nuanced analyses of matchups and outcomes.</p>
+</section>
+<section id="baseball-savant" class="level3">
+<h3 class="anchored" data-anchor-id="baseball-savant">Baseball Savant</h3>
+<p>To supplement our scraped data, we incorporated a third source: Baseball Savant, a publicly available website that provides detailed, season-long statistics that go beyond traditional box scores. Unlike our other sources, which offered game-by-game data, Baseball Savant’s data is cumulative and tracks advanced metrics throughout the season. For example, it includes expected batting average which incorporates exit velocity (how hard the ball is hit) and launch angle (angle at which the player swings their bat) and pitch usage rates, which displays how frequently pitchers throw specific pitch types. The site offers the ability to download the data as CSV files, which we did during the All-Star break to capture a midseason snapshot of player performance. For the purposes of our analysis, we chose to download the data once, as the season is already more than halfway complete and player performance is unlikely to vary significantly over the remaining games. After downloading the CSV files, we cleaned the data by removing unnecessary columns and renaming fields to improve clarity and ensure consistency across our dataset.</p>
+<p>The processed data was stored in four normalized tables within our PostgreSQL database. The batter_pitches table captured how individual batters performed against specific pitch types—such as fastballs, sliders, and curveballs. It included advanced metrics like Run Value (a measure of how much a specific pitch type increases or decreases run expectancy when thrown to that specific batter) and expected batting average to estimate likely outcomes. Similarly, the pitcher_pitches table reflected how effective each pitcher was with their various pitch types, using the same set of metrics but from the pitcher’s perspective. The batter_statcast and pitcher_statcast tables provided aggregated performance statistics that were not pitch-specific, offering a broader view of each player’s season-level tendencies. This Statcast data was particularly valuable as it combined pitch-level insights with overall performance metrics, enabling a more complete evaluation of both hitters and pitchers.</p>
+</section>
+<section id="pybaseball" class="level3">
+<h3 class="anchored" data-anchor-id="pybaseball">pybaseball</h3>
+<p>Our next source was the pybaseball Python package, which provided access to both MLB’s Statcast system and FanGraphs’ season-level statistics. This data enriched our dataset with advanced metrics such as batted ball tracking, pitch characteristics, and sabermetric indicators. Using pybaseball.statcast(), we collected pitch-level data spanning over a full season, which was then aggregated into player-game summaries. From FanGraphs, we retrieved seasonal statistics for both batters and pitchers, adding broader context around player performance.</p>
+<p>To unify these sources, we relied on the players table to bridge the differing identifier systems used by Statcast and FanGraphs. Using player_id’s, we were able to integrate detailed tracking data with season-level statistics across 537 unique players. This join enabled us to capture both granular and long-term perspectives on performance.</p>
+<p>Once collected, the data was processed into PostgreSQL using SQL-based transformations, similar to our statsapi pipeline. This structure supported efficient querying across pitch-level, game-level, and seasonal data, and laid the groundwork for downstream modeling and analysis.</p>
+</section>
+<section id="oddsapi" class="level3">
+<h3 class="anchored" data-anchor-id="oddsapi">oddsapi</h3>
+<p>Our betting market data was sourced using the OddsAPI feed, which provided structured JSON data on sportsbook offerings for player props such as hits, total bases, and home runs. This information was retrieved using the same custom scraper architecture used in other parts of the project. For consistency and integration with our game-level data, we joined odds records to player performance using a combination of game date and team abbreviations, ensuring alignment across sources despite the absence of shared unique identifiers.</p>
+<p>The betting data was parsed and stored in PostgreSQL, using fields such as market_type (type of prop bet), price (decimal odds), and point (over/under threshold). Additional fields included bookmaker_key and last_update, allowing us to track line movement and source attribution. Although historical odds are not yet fully populated, this structure enables us to link sportsbook expectations directly to individual player-game performances.</p>
+<p>This integration supports downstream use cases such as model backtesting and value identification. By comparing predicted player outcomes to market-implied probabilities, we can evaluate model performance not only in terms of accuracy but also potential profitability. This alignment creates a clear path for analysis centered on identifying inefficiencies in publicly posted betting lines.</p>
+</section>
+</section>
+<section id="data-organization" class="level2">
+<h2 class="anchored" data-anchor-id="data-organization">Data Organization</h2>
+<p>In the end the data was organized and combined using third normal form (3NF) to minimize redundancy and maintain reliable links across related data. Our entity-relationship diagram (ERD) (<a href="#fig-erd">Figure 1</a>) provides a clear visual representation, clearly mapping the relationships among all entities derived from our data acquisition process.</p>
+<figure id="fig-erd" class="figure">
+<img src="images/erd_diagram.png" alt="ERD diagram" width="800" class="figure-img">
+<figcaption style="font-size: 8px; color: #555;">
+Figure 1: This figure displays an ERD normalized to third normal form (3NF), highlighting primary keys and table relationships.
+</figcaption>
+</figure>
+</section>
+<section id="data-dictionaries" class="level2">
+<h2 class="anchored" data-anchor-id="data-dictionaries">Data Dictionaries</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="batter_pitches">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+batter_pitches
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table contains underlying aggregated statisical data, which will not show up in the typical box score.(Baseball Savant)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 25%">
+<col style="width: 60%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>batter_id</code></td>
+<td>Batter ID</td>
+<td>Unique identifier for the batter.</td>
+</tr>
+<tr class="even">
+<td><code>pitch_name</code></td>
+<td>Pitch Type</td>
+<td>Name of the pitch type (e.g., fastball, slider).</td>
+</tr>
+<tr class="odd">
+<td><code>rv_100</code></td>
+<td>Run Value / 100 Pitches</td>
+<td>Average run value per 100 pitches seen. Measures how well batters hit each pitch.</td>
+</tr>
+<tr class="even">
+<td><code>rv</code></td>
+<td>Run Value</td>
+<td>Total run value assigned to differnt pitches the batter has seen.</td>
+</tr>
+<tr class="odd">
+<td><code>pitches</code></td>
+<td>Pitches</td>
+<td>Total number of pitches thrown or seen.</td>
+</tr>
+<tr class="even">
+<td><code>pitch_usage</code></td>
+<td>Pitch Usage</td>
+<td>Percentage of time a specific pitch type is used.</td>
+</tr>
+<tr class="odd">
+<td><code>pa</code></td>
+<td>Plate Appearances</td>
+<td>Number of completed batting appearances, including walks and hit-by-pitches.</td>
+</tr>
+<tr class="even">
+<td><code>ba</code></td>
+<td>Batting Average</td>
+<td>Hits divided by at-bats.</td>
+</tr>
+<tr class="odd">
+<td><code>x_ba</code></td>
+<td>Expected Batting Average</td>
+<td>Likelihood a batted ball becomes a hit, based on exit velocity and launch angle.</td>
+</tr>
+<tr class="even">
+<td><code>slg</code></td>
+<td>Slugging Percentage</td>
+<td>Total bases divided by at-bats; measures power.</td>
+</tr>
+<tr class="odd">
+<td><code>x_slg</code></td>
+<td>Expected Slugging</td>
+<td>Predicted slugging based on batted ball quality.</td>
+</tr>
+<tr class="even">
+<td><code>woba</code></td>
+<td>Weighted On-Base Average</td>
+<td>Gives more weight to extra-base hits than OBP (On Base Percentage).</td>
+</tr>
+<tr class="odd">
+<td><code>x_woba</code></td>
+<td>Expected wOBA</td>
+<td>Predicted wOBA using quality-of-contact data.</td>
+</tr>
+<tr class="even">
+<td><code>whiff_percent</code></td>
+<td>Whiff Percentage</td>
+<td>Percentage of swings that result in misses.</td>
+</tr>
+<tr class="odd">
+<td><code>k_percent</code></td>
+<td>Strikeout Percentage</td>
+<td>Strikeouts divided by plate appearances.</td>
+</tr>
+<tr class="even">
+<td><code>put_away</code></td>
+<td>Put Away Percentage</td>
+<td>2-strike pitches resulting in strikeouts divided by total 2-strike pitches.</td>
+</tr>
+<tr class="odd">
+<td><code>hard_hit</code></td>
+<td>Hard Hit Percentage</td>
+<td>Percentage of batted balls hit at 95+ mph.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="batter_statcast">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+batter_statcast
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table contains aggregated Statcast metrics for batters across different pitch types, including expected and actual performance differentials across batting average, slugging, and wOBA. (Baseball Savant)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 25%">
+<col style="width: 60%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>batter_id</code></td>
+<td>Batter ID</td>
+<td>Unique identifier for the batter.</td>
+</tr>
+<tr class="even">
+<td><code>season</code></td>
+<td>Season</td>
+<td>Year in which the statistics are from.</td>
+</tr>
+<tr class="odd">
+<td><code>pa</code></td>
+<td>Plate Appearances</td>
+<td>Number of completed batting appearances, including walks and hit-by-pitches.</td>
+</tr>
+<tr class="even">
+<td><code>bip</code></td>
+<td>Balls In Play</td>
+<td>Number of batted balls put into play (excluding strikeouts, walks, etc.).</td>
+</tr>
+<tr class="odd">
+<td><code>ba</code></td>
+<td>Batting Average</td>
+<td>Hits divided by at-bats.</td>
+</tr>
+<tr class="even">
+<td><code>x_ba</code></td>
+<td>Expected Batting Average</td>
+<td>Likelihood a batted ball becomes a hit, based on exit velocity and launch angle.</td>
+</tr>
+<tr class="odd">
+<td><code>diff_ba</code></td>
+<td>BA - xBA</td>
+<td>Difference between actual and expected batting average.</td>
+</tr>
+<tr class="even">
+<td><code>slg</code></td>
+<td>Slugging Percentage</td>
+<td>Total bases divided by at-bats; measures power.</td>
+</tr>
+<tr class="odd">
+<td><code>x_slg</code></td>
+<td>Expected Slugging</td>
+<td>Predicted slugging based on batted ball quality.</td>
+</tr>
+<tr class="even">
+<td><code>diff_slg</code></td>
+<td>SLG - xSLG</td>
+<td>Difference between actual and expected slugging percentage.</td>
+</tr>
+<tr class="odd">
+<td><code>woba</code></td>
+<td>Weighted On-Base Average</td>
+<td>Gives more weight to extra-base hits than OBP.</td>
+</tr>
+<tr class="even">
+<td><code>x_woba</code></td>
+<td>Expected wOBA</td>
+<td>Predicted wOBA using quality-of-contact data.</td>
+</tr>
+<tr class="odd">
+<td><code>diff_woba</code></td>
+<td>wOBA - xwOBA</td>
+<td>Difference between actual and expected wOBA.</td>
+</tr>
+<tr class="even">
+<td><code>batter_id</code></td>
+<td>Batter ID</td>
+<td>Unique identifier for the batter.</td>
+</tr>
+<tr class="odd">
+<td><code>ops</code></td>
+<td>OPS</td>
+<td>On-base Plus Slugging — combines on-base % and slugging % to summarize hitter performance.</td>
+</tr>
+<tr class="even">
+<td><code>wrc_plus</code></td>
+<td>wRC+</td>
+<td>Weighted Runs Created Plus — measures a player’s total offensive value, adjusted for park and league. 100 is league average.</td>
+</tr>
+<tr class="odd">
+<td><code>home_runs</code></td>
+<td>Home Runs</td>
+<td>Number of home runs hit by the player.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="batter_stats">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+batter_stats
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table captures traditional game-level statistics for each batter, derived from box score data. (statsapi)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 18%">
+<col style="width: 65%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>game_id</code></td>
+<td>Game ID</td>
+<td>Unique identifier for the game.</td>
+</tr>
+<tr class="even">
+<td><code>batter_id</code></td>
+<td>Batter ID</td>
+<td>Unique identifier for the batter.</td>
+</tr>
+<tr class="odd">
+<td><code>team_id</code></td>
+<td>Team ID</td>
+<td>Identifier for the team the batter played for in the game.</td>
+</tr>
+<tr class="even">
+<td><code>position</code></td>
+<td>Position</td>
+<td>Fielding position the batter played during the game.</td>
+</tr>
+<tr class="odd">
+<td><code>ab</code></td>
+<td>At-Bats</td>
+<td>Number of official at-bats (excludes walks, HBP, sacrifices).</td>
+</tr>
+<tr class="even">
+<td><code>h</code></td>
+<td>Hits</td>
+<td>Number of hits.</td>
+</tr>
+<tr class="odd">
+<td><code>bb</code></td>
+<td>Walks (BB)</td>
+<td>Number of base on balls (walks).</td>
+</tr>
+<tr class="even">
+<td><code>r</code></td>
+<td>Runs</td>
+<td>Number of runs scored.</td>
+</tr>
+<tr class="odd">
+<td><code>rbi</code></td>
+<td>Runs Batted In</td>
+<td>Number of runs batted in.</td>
+</tr>
+<tr class="even">
+<td><code>so</code></td>
+<td>Strikeouts</td>
+<td>Number of times the batter struck out.</td>
+</tr>
+<tr class="odd">
+<td><code>double</code></td>
+<td>Doubles</td>
+<td>Number of doubles hit.</td>
+</tr>
+<tr class="even">
+<td><code>triple</code></td>
+<td>Triples</td>
+<td>Number of triples hit.</td>
+</tr>
+<tr class="odd">
+<td><code>hr</code></td>
+<td>Home Runs</td>
+<td>Number of home runs hit.</td>
+</tr>
+<tr class="even">
+<td><code>sb</code></td>
+<td>Stolen Bases</td>
+<td>Number of bases stolen during the game.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="previews">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+previews
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table stores pre-game matchup context, such as historical batter-vs-pitcher performance, scraped from MLB.com preview pages. (Selenium)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 17%">
+<col style="width: 66%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>game_date</code></td>
+<td>Game Date</td>
+<td>Date of the game.</td>
+</tr>
+<tr class="even">
+<td><code>batter_name</code></td>
+<td>Batter Name</td>
+<td>Name of the batter (no ID available in this table).</td>
+</tr>
+<tr class="odd">
+<td><code>pitcher_name</code></td>
+<td>Pitcher Name</td>
+<td>Name of the opposing pitcher.</td>
+</tr>
+<tr class="even">
+<td><code>hr</code></td>
+<td>Home Runs</td>
+<td>Total number of home runs prior to the game against the projected pitcher.</td>
+</tr>
+<tr class="odd">
+<td><code>rbi</code></td>
+<td>Runs Batted In</td>
+<td>Total number of RBIs prior to the game against the projected pitcher.</td>
+</tr>
+<tr class="even">
+<td><code>ab</code></td>
+<td>At-Bats</td>
+<td>Number of official at-bats prior to the game against the projected pitcher.</td>
+</tr>
+<tr class="odd">
+<td><code>avg</code></td>
+<td>Batting Average</td>
+<td>Batting average prior to the game against the projected pitcher.</td>
+</tr>
+<tr class="even">
+<td><code>ops</code></td>
+<td>On-Base Plus Slugging</td>
+<td>OPS (OBP + SLG) prior to the game against the projected pitcher.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="players">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+players
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table contains player metadata, including full names and unique identifiers used to join across tables. (statsapi)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 20%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>player_id</code></td>
+<td>Player ID</td>
+<td>Unique identifier for the player.</td>
+</tr>
+<tr class="even">
+<td><code>player_name</code></td>
+<td>Player Name</td>
+<td>Full name of the player.</td>
+</tr>
+<tr class="odd">
+<td><code>bats</code></td>
+<td>Bats</td>
+<td>Which side they hit from (Left or Right).</td>
+</tr>
+<tr class="even">
+<td><code>throws</code></td>
+<td>Throws</td>
+<td>Which side they pitch from (Left or Right).</td>
+</tr>
+<tr class="odd">
+<td><code>birth_date</code></td>
+<td>Birth Date</td>
+<td>Day player was born.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="sides">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+sides
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table maps each team to its role in a given game (home or away), used to differentiate sides during analysis. (statsapi)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 16%">
+<col style="width: 63%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>game_id</code></td>
+<td>Game ID</td>
+<td>Identifier for the game.</td>
+</tr>
+<tr class="even">
+<td><code>team_id</code></td>
+<td>Team ID</td>
+<td>Identifier for the team.</td>
+</tr>
+<tr class="odd">
+<td><code>side</code></td>
+<td>Side</td>
+<td>Side of the team in the game (<code>home</code> or <code>away</code>).</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="teams">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+teams
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table contains metadata about each team, including their unique identifier and full name. (statsapi)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 20%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>team_id</code></td>
+<td>Team ID</td>
+<td>Unique identifier for the team.</td>
+</tr>
+<tr class="even">
+<td><code>team_name</code></td>
+<td>Team Name</td>
+<td>Full name of the team.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="games">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+games
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table holds game-level information such as date and final scores for both home and away teams. (statsapi)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 19%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>game_id</code></td>
+<td>Game ID</td>
+<td>Unique identifier for the game.</td>
+</tr>
+<tr class="even">
+<td><code>date</code></td>
+<td>Date</td>
+<td>Date the game was played.</td>
+</tr>
+<tr class="odd">
+<td><code>home_team_id</code></td>
+<td>Home Team ID</td>
+<td>Identifier for the home team.</td>
+</tr>
+<tr class="even">
+<td><code>home_score</code></td>
+<td>Home Team Score</td>
+<td>Final score of the home team.</td>
+</tr>
+<tr class="odd">
+<td><code>away_team_id</code></td>
+<td>Away Team ID</td>
+<td>Identifier for the away team.</td>
+</tr>
+<tr class="even">
+<td><code>away_score</code></td>
+<td>Away Team Score</td>
+<td>Final score of the away team.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="pitches">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+pitches
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table contains pitch-level Statcast data used for machine learning feature engineering, derived from individual pitch outcomes. (pybaseball)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>game_id</code></td>
+<td>Game ID</td>
+<td>Unique identifier for games table.</td>
+</tr>
+<tr class="even">
+<td><code>batter_id</code></td>
+<td>Batter ID</td>
+<td>Unique identifier for batters.</td>
+</tr>
+<tr class="odd">
+<td><code>pitcher_id</code></td>
+<td>Pitcher ID</td>
+<td>Unique identifier for pitchers.</td>
+</tr>
+<tr class="even">
+<td><code>events</code></td>
+<td>Pitch Outcome</td>
+<td>Result of the plate appearance (single, home_run, strikeout, etc.).</td>
+</tr>
+<tr class="odd">
+<td><code>launch_speed</code></td>
+<td>Exit Velocity</td>
+<td>Speed of batted ball off the bat in mph.</td>
+</tr>
+<tr class="even">
+<td><code>launch_angle</code></td>
+<td>Launch Angle</td>
+<td>Vertical angle of batted ball trajectory in degrees.</td>
+</tr>
+<tr class="odd">
+<td><code>release_speed</code></td>
+<td>Pitch Velocity</td>
+<td>Speed of pitch when released in mph.</td>
+</tr>
+<tr class="even">
+<td><code>pitch_type</code></td>
+<td>Pitch Type Code</td>
+<td>Abbreviated pitch type (FF=four-seam fastball, SL=slider, etc.).</td>
+</tr>
+<tr class="odd">
+<td><code>stand</code></td>
+<td>Batter Handedness</td>
+<td>L=left-handed batter, R=right-handed batter.</td>
+</tr>
+<tr class="even">
+<td><code>p_throws</code></td>
+<td>Pitcher Handedness</td>
+<td>L=left-handed pitcher, R=right-handed pitcher.</td>
+</tr>
+<tr class="odd">
+<td><code>woba_value</code></td>
+<td>Weighted On-Base Value</td>
+<td>Run value assigned to the specific pitch outcome.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="pitcher_stats">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+pitcher_stats
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table contains game-level performance stats for each pitcher, including innings pitched, runs allowed, and ERA. (statsapi)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 19%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>game_id</code></td>
+<td>Game ID</td>
+<td>Unique identifier for the game.</td>
+</tr>
+<tr class="even">
+<td><code>pitcher_id</code></td>
+<td>Pitcher ID</td>
+<td>Unique identifier for the pitcher.</td>
+</tr>
+<tr class="odd">
+<td><code>team_id</code></td>
+<td>Team ID</td>
+<td>Identifier for the team the pitcher played for.</td>
+</tr>
+<tr class="even">
+<td><code>type</code></td>
+<td>Pitcher Type</td>
+<td>Type of pitcher (e.g., starter, reliever).</td>
+</tr>
+<tr class="odd">
+<td><code>ip</code></td>
+<td>Innings Pitched</td>
+<td>Total number of innings pitched in the game.</td>
+</tr>
+<tr class="even">
+<td><code>h</code></td>
+<td>Hits Allowed</td>
+<td>Total hits allowed.</td>
+</tr>
+<tr class="odd">
+<td><code>r</code></td>
+<td>Runs Allowed</td>
+<td>Total runs allowed.</td>
+</tr>
+<tr class="even">
+<td><code>er</code></td>
+<td>Earned Runs</td>
+<td>Number of earned runs allowed.</td>
+</tr>
+<tr class="odd">
+<td><code>bb</code></td>
+<td>Walks</td>
+<td>Number of walks issued.</td>
+</tr>
+<tr class="even">
+<td><code>so</code></td>
+<td>Strikeouts</td>
+<td>Number of batters struck out.</td>
+</tr>
+<tr class="odd">
+<td><code>hr</code></td>
+<td>Home Runs Allowed</td>
+<td>Number of home runs allowed.</td>
+</tr>
+<tr class="even">
+<td><code>pitches</code></td>
+<td>Pitches Thrown</td>
+<td>Total number of pitches thrown.</td>
+</tr>
+<tr class="odd">
+<td><code>strikes</code></td>
+<td>Strikes Thrown</td>
+<td>Number of strikes thrown.</td>
+</tr>
+<tr class="even">
+<td><code>era</code></td>
+<td>Earned Run Average</td>
+<td>ERA for the game.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="pitcher_statcast">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+pitcher_statcast
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table includes Statcast-derived advanced metrics for pitchers, highlighting differences between actual and expected outcomes like ERA, BA, SLG, and wOBA. (Baseball Savant)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 18%">
+<col style="width: 65%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pitcher_id</code></td>
+<td>Pitcher ID</td>
+<td>Unique identifier for the pitcher.</td>
+</tr>
+<tr class="even">
+<td><code>pa</code></td>
+<td>Plate Appearances</td>
+<td>Number of completed batting appearances against the pitcher.</td>
+</tr>
+<tr class="odd">
+<td><code>bip</code></td>
+<td>Balls In Play</td>
+<td>Number of batted balls put into play against pitcher.</td>
+</tr>
+<tr class="even">
+<td><code>ba</code></td>
+<td>Batting Average</td>
+<td>Batting average against the pitcher.</td>
+</tr>
+<tr class="odd">
+<td><code>x_ba</code></td>
+<td>Expected BA</td>
+<td>Expected batting average based on batted ball data.</td>
+</tr>
+<tr class="even">
+<td><code>diff_ba</code></td>
+<td>BA - xBA</td>
+<td>Difference between actual and expected batting average.</td>
+</tr>
+<tr class="odd">
+<td><code>slg</code></td>
+<td>Slugging Percentage</td>
+<td>Slugging percentage against the pitcher.</td>
+</tr>
+<tr class="even">
+<td><code>x_slg</code></td>
+<td>Expected SLG</td>
+<td>Expected slugging based on contact quality.</td>
+</tr>
+<tr class="odd">
+<td><code>diff_slg</code></td>
+<td>SLG - xSLG</td>
+<td>Difference between actual and expected slugging.</td>
+</tr>
+<tr class="even">
+<td><code>woba</code></td>
+<td>Weighted On-Base Avg</td>
+<td>Weighted on-base average against the pitcher.</td>
+</tr>
+<tr class="odd">
+<td><code>x_woba</code></td>
+<td>Expected wOBA</td>
+<td>Predicted wOBA using Statcast data.</td>
+</tr>
+<tr class="even">
+<td><code>diff_woba</code></td>
+<td>wOBA - xwOBA</td>
+<td>Difference between actual and expected wOBA.</td>
+</tr>
+<tr class="odd">
+<td><code>era</code></td>
+<td>ERA</td>
+<td>Earned run average.</td>
+</tr>
+<tr class="even">
+<td><code>x_era</code></td>
+<td>Expected ERA</td>
+<td>Expected ERA based on contact and strikeout/walk profile.</td>
+</tr>
+<tr class="odd">
+<td><code>diff_era</code></td>
+<td>ERA - xERA</td>
+<td>Difference between actual and expected ERA.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="pitcher_pitches">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+pitcher_pitches
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table contains pitch-type-level metrics for pitchers, including run value, whiff rate, usage rate, and contact quality outcomes. (Baseball Savant)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 21%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pitcher_id</code></td>
+<td>Pitcher ID</td>
+<td>Unique identifier for the pitcher.</td>
+</tr>
+<tr class="even">
+<td><code>pitch_name</code></td>
+<td>Pitch Type</td>
+<td>Name of the pitch (e.g., fastball, slider).</td>
+</tr>
+<tr class="odd">
+<td><code>rv_100</code></td>
+<td>Run Value / 100 Pitches</td>
+<td>Average run value per 100 pitches thrown.</td>
+</tr>
+<tr class="even">
+<td><code>rv</code></td>
+<td>Run Value</td>
+<td>Total run value assigned to the pitch.</td>
+</tr>
+<tr class="odd">
+<td><code>pitches</code></td>
+<td>Pitches Thrown</td>
+<td>Number of times this pitch type was thrown.</td>
+</tr>
+<tr class="even">
+<td><code>pitch_usage</code></td>
+<td>Pitch Usage</td>
+<td>Percentage of time this pitch type is used.</td>
+</tr>
+<tr class="odd">
+<td><code>pa</code></td>
+<td>Plate Appearances</td>
+<td>Total plate appearances ending with this pitch type.</td>
+</tr>
+<tr class="even">
+<td><code>ba</code></td>
+<td>Batting Average</td>
+<td>Batting average against this pitch.</td>
+</tr>
+<tr class="odd">
+<td><code>x_ba</code></td>
+<td>Expected BA</td>
+<td>Expected batting average against this pitch.</td>
+</tr>
+<tr class="even">
+<td><code>slg</code></td>
+<td>Slugging Percentage</td>
+<td>Slugging percentage against this pitch.</td>
+</tr>
+<tr class="odd">
+<td><code>x_slg</code></td>
+<td>Expected SLG</td>
+<td>Expected slugging against this pitch.</td>
+</tr>
+<tr class="even">
+<td><code>woba</code></td>
+<td>Weighted On-Base Average</td>
+<td>wOBA against this pitch.</td>
+</tr>
+<tr class="odd">
+<td><code>x_woba</code></td>
+<td>Expected wOBA</td>
+<td>Expected wOBA against this pitch.</td>
+</tr>
+<tr class="even">
+<td><code>whiff_percent</code></td>
+<td>Whiff Percentage</td>
+<td>Percent of swings against this pitch that missed.</td>
+</tr>
+<tr class="odd">
+<td><code>k_percent</code></td>
+<td>Strikeout Percentage</td>
+<td>Percent of plate appearances ending in strikeouts on this pitch.</td>
+</tr>
+<tr class="even">
+<td><code>put_away</code></td>
+<td>Put Away Percentage</td>
+<td>Percent of 2-strike counts resulting in strikeouts with this pitch.</td>
+</tr>
+<tr class="odd">
+<td><code>hard_hit</code></td>
+<td>Hard Hit Percentage</td>
+<td>Percent of batted balls hit 95+ mph off this pitch.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="betting_events">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+betting_events
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table links betting markets to scheduled or completed games. (oddsapi)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 18%">
+<col style="width: 61%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>event_id</code></td>
+<td>Event ID</td>
+<td>Unique identifier for each betting event.</td>
+</tr>
+<tr class="even">
+<td><code>commence_date</code></td>
+<td>Start Time</td>
+<td>Scheduled start date of the game.</td>
+</tr>
+<tr class="odd">
+<td><code>home_team</code></td>
+<td>Home Team</td>
+<td>Name of the home team.</td>
+</tr>
+<tr class="even">
+<td><code>away_team</code></td>
+<td>Away Team</td>
+<td>Name of the away team.</td>
+</tr>
+<tr class="odd">
+<td><code>completed</code></td>
+<td>Completed Flag</td>
+<td>Boolean indicating whether the event has finished.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="player_props">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+player_props
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This table represents the planned betting market integration, designed to support model validation and value identification once populated with historical odds data. (oddsapi)</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>prop_id</code></td>
+<td>Prop ID</td>
+<td>Primary key for individual prop bet offerings.</td>
+</tr>
+<tr class="even">
+<td><code>event_id</code></td>
+<td>Event ID</td>
+<td>Links to specific games through events table.</td>
+</tr>
+<tr class="odd">
+<td><code>bookmaker_key</code></td>
+<td>Sportsbook</td>
+<td>Identifier for which bookmaker offered the odds.</td>
+</tr>
+<tr class="even">
+<td><code>market_type</code></td>
+<td>Bet Type</td>
+<td>Type of prop bet (hits, total_bases, home_runs, etc.).</td>
+</tr>
+<tr class="odd">
+<td><code>player_name</code></td>
+<td>Player Name</td>
+<td>Name of player for the prop bet.</td>
+</tr>
+<tr class="even">
+<td><code>price</code></td>
+<td>Betting Odds</td>
+<td>Decimal odds offered by bookmaker.</td>
+</tr>
+<tr class="odd">
+<td><code>point</code></td>
+<td>Over/Under Line</td>
+<td>Threshold value for over/under bets (0.5, 1.5, etc.).</td>
+</tr>
+<tr class="even">
+<td><code>last_update</code></td>
+<td>Last Update</td>
+<td>Time at which the prop was last updated.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="bookmakers">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-15-contents" aria-controls="callout-15" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+bookmakers
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-15" class="callout-15-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This lookup table provides sportsbook identifiers used in the player_props table.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 19%">
+<col style="width: 60%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable</strong></th>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>bookmaker_key</code></td>
+<td>Sportsbook Key</td>
+<td>Unique identifier for the bookmaker (e.g., <code>draftkings</code>).</td>
+</tr>
+<tr class="even">
+<td><code>title</code></td>
+<td>Sportsbook Name</td>
+<td>Display name of the sportsbook (e.g., “DraftKings”, “FanDuel”, etc.).</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="results" class="level1">
+<h1>Results</h1>
+<section id="overunder-run-scoring-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="overunder-run-scoring-analysis">Over/Under Run Scoring Analysis</h2>
+<p>Our initial analysis focused on identifying which variables were most predictive of how many runs a team scores in a given game. We used a wide range of features grouped into three main categories:</p>
+<p>Opposing starting pitcher (sp.) statistics, including metrics such as earned run average (ERA), opponent batting average (BA), innings pitched (IP), and expected stats like xERA and xBA.</p>
+<p>Opposing relief pitcher statistics (rp.), which represent aggregated bullpen performance using the same types of measures as for starters, such as ERA and slugging percentage (SLG) allowed.</p>
+<p>Team batter statistics (b.), covering both per-game aggregates (e.g., total hits, home runs, strikeouts) and season-long averages for the lineup, such as batting average (BA) and slugging percentage (SLG).</p>
+<p>By integrating data from opposing starting pitchers, opposing relievers, and the team’s offensive performance, we aimed to construct a well-rounded model for predicting team run performance.</p>
+<section id="exploratory-data-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h3>
+<p>To gain insight into team scoring behavior, we computed summary statistics for runs scored per game. This helped us examine the distribution of offensive output and understand typical scoring ranges across all team-game observations.</p>
+<figure id="fig-run_dist" class="figure">
+<img src="images/run_dist.png" alt="Run Distribution" width="800" class="figure-img">
+<figcaption style="font-size: 8px; color: #555;">
+Figure 2: Team-level distribution of runs scored per game over the specified time period
+</figcaption>
+</figure>
+<p>The distribution of runs scored per game, as seen in <a href="#fig-run_dist">Figure 2</a>, was right-skewed, with a few high-scoring outliers pulling the mean upward. The median was 4 runs, while the mean was slightly higher at 4.6, reflecting the impact of those outliers. This mean value serves as a useful benchmark when modeling run production in machine learning, especially when deciding how to frame our prediction target.</p>
+<p>We then focused on identifying which features were most indicative of how many runs a team scores in a game. To do this, we built a linear regression model using a wide range of pitching and hitting statistics. However, many baseball metrics are inherently correlated, for example, batting average contributes heavily to a weighted on base average (wOBA). Thus, we encountered significant multicollinearity. To address this, we systematically filtered out redundant variables, prioritizing those that captured unique predictive value. After this reduction process, we finalized a simplified linear model using the following variables: <code>sp_era</code>, <code>sp_ba</code>, <code>sp_slg</code>, <code>rp_era</code>, <code>rp_slg</code>, <code>rp_ip</code>, <code>b_ba</code>, <code>b_sum_so</code>, <code>b_slg</code>.</p>
+<p>From our linear model, we identified three statistically significant predictors of runs scored:</p>
+<ul>
+<li><p>Relief pitcher ERA (rp_era), with a p-value of 0.047</p></li>
+<li><p>Relief pitcher innings pitched (rp_ip), with a p-value of 0.001</p></li>
+<li><p>Team batting average (b_ba), with a p-value of 0.011.</p></li>
+</ul>
+<p>Batting average stood out as something worth exploring further, especially as the season progresses, since we also have data on expected batting average (xBA) available.</p>
+</section>
+<section id="actual-vs.-expected-batting-average" class="level3">
+<h3 class="anchored" data-anchor-id="actual-vs.-expected-batting-average">Actual vs.&nbsp;Expected Batting Average</h3>
+<p>The law of averages suggest that after a large number of trials, outcomes tend to converge toward their expected value. While not a guarantee, this principle would imply that a teams collective batting average should align more closely with their expected batting average as the season progresses.</p>
+<p>Expected batting average is a Statcast metric designed to estimate the likelihood that a batted ball will result in a hit. It is based on two key factors: exit velocity (how hard the ball is hit) and the launch angle (the angle at which the ball hits off the bat). Baseball is an incredibly difficult sport, and surface-level stats don’t always tell the full story. That is where expected statistics come in– they often provide a more accurate picture of a player’s performance. For example, a hitter might crush a ball at 115 MPH, but if it’s hit directly at a defender, it results in an out. On the other hand, a softly hit ball at just 40 MPH could drop into the perfect spot for a hit. xBA accounts for these inconsistencies by using historical data to estimate how often similar batted balls have gone for hits. While not perfect, it offers a more context-aware view of hitting performance.</p>
+<figure id="fig-ba" class="figure">
+<img src="images/ba.png" alt="Batting Average" width="800" class="figure-img">
+<figcaption style="font-size: 8px; color: #555;">
+Figure 3: Visualizing whether teams underperforming and overperforming their respective expected batting average metric.
+</figcaption>
+</figure>
+<p>Since we are trying to understand team run production it makes sense to inspect batting average– a statistic that closely correlates with runs scored. When a team’s actual batting average is lower than its expected batting average (xBA), it is indicative of underperformance. Further, we might anticipate that, over time, they will regress upward as outcomes begin to “even out.” In other words, we would expect more batted balls to start falling for hits, raising both their batting average and, ultimately, their run totals.</p>
+<p>Conversely, teams currently overperforming their xBA may regress downward, with fewer hits falling in, resulting in fewer runs scored.</p>
+<p>Tracking these differences (<a href="#fig-ba">Figure 3</a>) provides valuable insight into which teams may be poised for a shift in offensive production based on their underlying quality of contact.</p>
+<figure id="fig-run_diff" class="figure">
+<img src="images/run_diff.png" alt="Run Differences" width="800" class="figure-img">
+<figcaption style="font-size: 8px; color: #555;">
+Figure 4: Identifing the teams with the largest increases and decreases in average runs scored following the All-Star Break.
+</figcaption>
+</figure>
+<p>A pattern emerges when comparing team-level batting average (BA) versus expected batting average (xBA) with changes in run production post-All-Star Break. Teams that had been underperforming their xBA, such as CLE, CWS, KC, and HOU are now scoring significantly more runs (<a href="#fig-run_diff">Figure 4</a>), suggesting positive regression. Conversely, overperforming teams like BOS and SEA have seen their run production drop, hinting at regression to the mean. Some teams that showed a noticeable change in scoring also had differences between actual and expected batting averages, though those differences were relatively small. (<a href="#fig-ba2">Figure 5</a>).</p>
+<p>The Rockies appear to be overperforming their expected batting average (xBA), but this is likely a product of Coors Field– MLB’s most hitter-friendly park. The high altitude and thin air in Denver inflate offensive stats by reducing air resistance and allowing balls to travel farther. This “Coors Field Effect” regularly skews batting metrics, making Colorado’s apparent overperformance more a reflection of park conditions than unsustainable hitting.</p>
+<figure id="fig-ba2" class="figure">
+<img src="images/ba2.png" alt="Batting Average Overlayed" width="800" class="figure-img">
+<figcaption style="font-size: 8px; color: #555;">
+Figure 5: Linking changes in run production to batting average overperformance and underperformance by teams with the largest differences post All-Star Break.
+</figcaption>
+</figure>
+</section>
+<section id="machine-learning" class="level3">
+<h3 class="anchored" data-anchor-id="machine-learning">Machine Learning</h3>
+<p>Still working on a machine learning model based on the analysis above.</p>
+</section>
+</section>
+<section id="prop-betting-analysis-for-batters" class="level2">
+<h2 class="anchored" data-anchor-id="prop-betting-analysis-for-batters">Prop Betting Analysis for Batters</h2>
+<p>We then explored hitter-focused prop bets, specifically whether a batter would record at least one hit or exceed two total bases in a given game. Total bases are calculated as follows: a single counts as one, a double as two, a triple as three, and a home run as four. To surpass two total bases, a player could hit a double, triple, home run, or combine multiple hits (e.g., two singles). Any combination totaling more than two qualifies for the over.</p>
+<section id="pitcher-batter-preview" class="level3">
+<h3 class="anchored" data-anchor-id="pitcher-batter-preview">Pitcher-Batter Preview</h3>
+<p>To gain an edge in predicting favorable prop outcomes, we began by analyzing game preview data for each day, including scheduled starting pitchers and historical batter-vs-pitcher matchup statistics.</p>
+<p>The first areas we explored was how specific batters had performed against certain pitchers in the past. In baseball, it is often said that some hitters “have have a pitcher’s number,” meaning they see a pitcher very well— a phenomenon that may not always be captured by traditional stats. When a batter consistently succeeds against a particular pitcher, it can signal a meaningful matchup advantage. With that in mind, we prioritized these historical trends as a way to identify potentially favorable prop bet opportunities.</p>
+<p>Next, we analyzed discrepancies in run value per 100 pitches (RV/100) to identify potential mismatches between pitchers and hitters. Specifically, we calculated the difference in RV/100 by comparing a batter’s performance against specific pitch types to the different pitches thrown by the scheduled opposing pitcher. This allowed us to estimate how well a batter might match up based on the types of pitches they were likely to face in a given game. In other words, we cross-referenced each batter’s strengths with a pitcher’s weaknesses to uncover matchups where a hitter may be especially well-suited to succeed. To ensure the matchup was meaningful, we also applied a minimum usage threshold, filtering out pitch types that a pitcher rarely throws.</p>
+<section id="interactive-hitter-matchup-app" class="level4">
+<h4 class="anchored" data-anchor-id="interactive-hitter-matchup-app">Interactive Hitter Matchup App</h4>
+<p>This dashboard is built to showcase the most advantageous matchups for the games daily.</p>
+<p>The top table displays advantageous batter-pitcher matchup histories, filtered to highlight hitters with the strongest track records. To ensure meaningful results, we included only hitters with a batting average above .250 against the opposing pitcher—indicating they’ve recorded a hit in more than 25% of their past at-bats. Additionally, we required a minimum of four at-bats in the matchup to ensure a more substantial sample size.</p>
+<p>The table below highlights batters with a significant advantage based on run value against specific pitch types. It is sorted from highest to lowest run value difference, showcasing hitters who are most likely to succeed against the opposing pitcher’s arsenal. To qualify for this table, a batter must have a run value differential greater than 2 in their favor. If a batter appears in both this table and the matchup history table above, they are highlighted in yellow– indicating that both analyses suggest a strong likelihood of success in that day’s game.</p>
+<p>Users can sort the dashboard by date, with the default view automatically displaying matchups from the current day’s slate of games. If a previous date is selected, historical matchups and their corresponding results will appear. A color-coded key is provided below the date selector to help interpret the meaning of each highlighted row.</p>
+<p>At the bottom of the dashboard is a simulated betting analysis. For players to get a hit,it is typically priced around -200 odds, meaning a $200 wager would win $100. For the purpose of our analysis, we will be assuming a $10 wager per player. A successful bet yields a $5 profit, while a loss forfeits the $10 stake. For total bases (2+), where odds are usually closer to +100, we again simulate $10 wagers. In this case, a win returns $10 in profit, while a loss results in a $10 loss. The dashboard aggregates daily results based on these assumptions and displays the cumulative outcomes for easy tracking.</p>
+<div style="text-align: center;">
+<iframe src="https://60bwvg-jace-higa.shinyapps.io/mlb_betting/" width="100%" height="800px" style="border:none;"></iframe>
+<p style="margin-top: 8px; font-style: italic; font-size: 0.95em; color: #555;">
+Figure 6: Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.
+</p>
+</div>
+</section>
+</section>
+</section>
+<section id="machine-learning-for-individual-player-props" class="level2">
+<h2 class="anchored" data-anchor-id="machine-learning-for-individual-player-props">Machine Learning for Individual Player Props</h2>
+<p>While the interactive dashboard approach provided valuable insights into daily matchup advantages, we recognized the need for a scalable, data-driven approach to individual player prop prediction. To complement the human-guided analysis, we developed a comprehensive machine learning pipeline focused on predicting specific prop betting outcomes using historical player performance and advanced statistical modeling.</p>
+<section id="statistical-thinking-and-model-development" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-thinking-and-model-development">Statistical Thinking and Model Development</h3>
+<p>Our machine learning approach was grounded in established sports betting research, particularly the findings of Walsh &amp; Joshi (2024) demonstrating that model calibration matters more than raw accuracy for betting profitability. Rather than optimizing solely for traditional machine learning metrics, we prioritized probability calibration to ensure our predictions would translate effectively to real-world betting scenarios.</p>
+<p>We framed individual player prop prediction as a series of binary classification problems, creating target variables that directly corresponded to common betting markets: whether a player would record more than 0.5 hits (<code>hits_over_0.5</code>), more than 1.5 hits (<code>hits_over_1.5</code>), and more than 1.5 total bases (<code>total_bases_over_1.5</code>). This approach aligned our statistical models with practical betting applications while maintaining methodological rigor.</p>
+<p>A central emphasis throughout our model development was avoiding data leakage to ensure our predictions would replicate information realistically available before game time. This methodological focus guided our feature engineering process and model validation approach, prioritizing realistic predictive capability over artificially inflated performance metrics.</p>
+</section>
+<section id="feature-engineering-and-data-leakage-prevention" class="level3">
+<h3 class="anchored" data-anchor-id="feature-engineering-and-data-leakage-prevention">Feature Engineering and Data Leakage Prevention</h3>
+<p>Our feature engineering process was designed with strict adherence to temporal constraints that would apply in real-world betting scenarios. We exclusively used information that would be available before game time, avoiding any same-game statistics that could artificially inflate model performance.</p>
+<p>From seasonal batting statistics, we incorporated established player ability metrics including <code>season_batting_avg</code>, <code>season_obp</code>, <code>season_slg</code>, <code>season_ops</code>, <code>season_woba</code>, and <code>season_wrc_plus</code>. These provide baseline context for each player’s demonstrated skill level over the current season.</p>
+<p>To capture per-game expectations without using same-game data, we calculated historical rate features such as <code>historical_hr_per_game</code>, <code>historical_hit_per_game</code>, <code>historical_walk_rate</code>, and <code>historical_k_rate</code> by dividing season totals by games played. These features provide realistic estimates of typical player output while maintaining temporal validity.</p>
+<p>Experience and volume indicators included <code>games_played</code>, <code>season_games</code>, and contextual factors such as <code>is_home</code> and <code>season</code> indicators. These features capture player experience, health, and situational factors without incorporating any information from the game being predicted.</p>
+<p>The final dataset comprised 19,587 player-game records across training (12,000), validation (4,000), and test (3,587) sets, with 47% of records containing complete seasonal statistical context. This represented a deliberate trade-off between data completeness and prediction reliability, focusing on players with sufficient historical information for meaningful modeling.</p>
+</section>
+<section id="model-architecture-and-algorithm-selection" class="level3">
+<h3 class="anchored" data-anchor-id="model-architecture-and-algorithm-selection">Model Architecture and Algorithm Selection</h3>
+<p>Based on academic literature review, we implemented a comparative analysis of multiple machine learning algorithms known to perform well in sports prediction contexts. Our model suite included Random Forest, XGBoost, and ensemble methods, each calibrated using isotonic regression to optimize probability estimates for betting applications.</p>
+<p>The Random Forest implementation used 100 estimators with a maximum depth of 6, configured conservatively to prevent overfitting in the challenging sports prediction environment. Our XGBoost configuration employed 100 estimators with a learning rate of 0.05 and regularization parameters designed specifically for sports betting applications.</p>
+<p>Most critically, following Walsh &amp; Joshi’s research demonstrating that calibration-optimized models achieved +34.69% ROI versus -35.17% for accuracy-focused models, we applied CalibratedClassifierCV with isotonic regression to all base models. This ensured our probability outputs would be well-calibrated for betting decision-making rather than optimized solely for classification accuracy.</p>
+<p>To leverage the strengths of multiple algorithms, we created ensemble models using weighted voting that combined the calibrated outputs of our individual models. This approach aligned with Galekwa et al.&nbsp;(2024) findings that ensemble methods consistently outperform single models in sports betting applications.</p>
+</section>
+<section id="model-performance-and-validation" class="level3">
+<h3 class="anchored" data-anchor-id="model-performance-and-validation">Model Performance and Validation</h3>
+<p>Our comprehensive evaluation employed temporal validation with strict separation between training, validation, and test periods to simulate realistic prediction scenarios. Training data covered April-May 2025, validation used June 2025, and testing employed July 2025 data, ensuring models never saw future information during training.</p>
+<p>The Random Forest model achieved the strongest performance with an average test AUC of 0.549 across target variables, followed by ensemble methods at 0.548 AUC and XGBoost at 0.548 AUC. Individual target performance varied, with <code>hits_over_1.5</code> achieving the highest AUC of 0.554, while <code>total_bases_over_1.5</code> recorded 0.543 AUC.</p>
+<figure id="fig-model_performance" class="figure">
+<img src="images/model_performance_comparison_final.png" alt="Model Performance Comparison" width="800" class="figure-img">
+<figcaption style="font-size: 8px; color: #555;">
+Figure 7: Model performance comparison across MLB player prop targets. Left panel shows all algorithms clustering near the academic baseline (Elfrink 2018), demonstrating realistic performance expectations for sports betting applications. Right panel validates absence of overfitting through strong validation-test agreement along the diagonal.
+</figcaption>
+</figure>
+<p>When benchmarked against established academic literature, our results align closely with the documented baseline of 0.552 AUC (Elfrink, 2018) for MLB prediction tasks. This performance falls within the expected range for legitimate sports betting models that avoid data leakage, demonstrating that our emphasis on methodological rigor produced realistic performance estimates rather than artificially inflated metrics.</p>
+<p>The consistency of performance across different target variables and temporal periods validates our feature engineering approach and suggests that our models captured generalizable patterns in player performance rather than overfitting to specific outcomes or time periods. As shown in <a href="#fig-model_performance">Figure 7</a>, the tight clustering of all algorithms around the academic baseline, combined with the strong validation-test agreement along the diagonal, confirms both realistic performance expectations and robust generalization capabilities.</p>
+</section>
+<section id="feature-importance-and-model-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="feature-importance-and-model-interpretation">Feature Importance and Model Interpretation</h3>
+<p>Analysis of feature importance revealed that seasonal performance metrics provided the primary predictive signal, with <code>season_batting_avg</code>, <code>season_ops</code>, and <code>season_woba</code> consistently ranking among the top contributors across all models. This finding validates the importance of established player ability as captured through comprehensive seasonal statistics.</p>
+<figure id="fig-feature_importance" class="figure">
+<img src="images/feature_importance.png" alt="Feature Importance Analysis" width="800" class="figure-img">
+<figcaption style="font-size: 8px; color: #555;">
+Figure 8: Feature importance analysis aggregated across all models and targets, demonstrating the dominance of legitimate pre-game predictors. Seasonal statistics (blue) and historical rates (orange) provide the strongest predictive signal, while the complete absence of same-game features confirms successful data leakage prevention.
+</figcaption>
+</figure>
+<p>Historical rate calculations such as <code>historical_hr_per_game</code> and <code>historical_hit_per_game</code> proved valuable for normalizing seasonal performance across different playing time contexts. Experience indicators including <code>games_played</code> provided meaningful context about player reliability and health status.</p>
+<p>As demonstrated in <a href="#fig-feature_importance">Figure 8</a>, the absence of any same-game derived features from the importance rankings confirms our successful elimination of data leakage while maintaining predictive capability. The dominance of seasonal statistics and historical rates validates our interpretation that established player ability, rather than game-specific circumstances, drives the primary predictive signal in our models.</p>
+<p>Contextual factors like <code>season</code> and <code>is_home</code> showed moderate importance, suggesting systematic differences in performance across these dimensions. The absence of any same-game derived features from the top importance rankings confirms our successful elimination of data leakage while maintaining predictive capability.</p>
+</section>
+<section id="model-calibration-and-odds-data-integration" class="level3">
+<h3 class="anchored" data-anchor-id="model-calibration-and-odds-data-integration">Model Calibration and Odds Data Integration</h3>
+<p>A critical aspect of our modeling approach was ensuring well-calibrated probability outputs suitable for betting applications. Our calibration analysis demonstrated that all models produced probability estimates closely aligned with observed outcome frequencies, essential for comparing model predictions with betting market prices.</p>
+<p>The ROC analysis confirmed consistent discriminative ability across different target variables, with all models achieving meaningful separation between positive and negative cases despite the challenging nature of individual player prediction.</p>
+</section>
+<section id="planned-integration-with-betting-market-data" class="level3">
+<h3 class="anchored" data-anchor-id="planned-integration-with-betting-market-data">Planned Integration with Betting Market Data</h3>
+<p>To evaluate whether our statistical models can identify profitable betting opportunities, we will integrate our calibrated probability predictions with real-time odds data from multiple sportsbooks. This integration represents the critical next phase of our hybrid modeling approach, where statistical predictions meet market-based information.</p>
+<p>Our odds data infrastructure captures player prop lines from major sportsbooks including DraftKings, FanDuel, BetMGM, and Caesars across the key markets we predict: hits over 0.5, hits over 1.5, and total bases over 1.5. By implementing comprehensive odds shopping across these platforms, we can identify the most favorable lines available for each predicted outcome, maximizing potential value when our model probabilities diverge significantly from market prices.</p>
+<p>The integration methodology will compare our calibrated model probabilities directly with implied probabilities from betting lines, accounting for sportsbook margins to identify genuine value opportunities. For instance, if our model assigns a 0.70 probability to a player recording 1+ hits, but the best available odds imply only a 0.60 probability (after margin adjustment), this represents a potential value bet. Consistent application of this approach across hundreds of daily prop opportunities will test whether our statistical edge translates to profitable betting outcomes.</p>
+</section>
+<section id="integration-with-matchup-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="integration-with-matchup-analysis">Integration with Matchup Analysis</h3>
+<p>Our machine learning approach complements the interactive matchup analysis by providing automated screening capabilities across all players and games. While the dashboard excels at identifying specific daily opportunities through pitcher-batter historical data and pitch-type analysis, the ML models can evaluate hundreds of prop opportunities simultaneously using consistent statistical criteria.</p>
+<p>This integration allows ML models to identify players whose predicted performance substantially differs from betting market prices, while the dashboard provides contextual validation through matchup-specific insights. The hybrid approach leverages both algorithmic pattern recognition capabilities and nuanced situational analysis for comprehensive opportunity identification.</p>
+</section>
+</section>
+</section>
+<section id="conclusions" class="level1">
+<h1>Conclusions</h1>
+<section id="key-findings" class="level2">
+<h2 class="anchored" data-anchor-id="key-findings">Key Findings</h2>
+<section id="overunder-runs-bets" class="level3">
+<h3 class="anchored" data-anchor-id="overunder-runs-bets">Over/Under Runs Bets</h3>
+<ul>
+<li><p><strong>Bullpen performance is a key driver of scoring</strong>: Relief pitcher stats, particularly ERA and innings pitched, were strong predictors of team run totals, often more so than starter metrics. This is intuitive: when a starting pitcher struggles, they’re removed early, forcing greater reliance on the bullpen. This creates opportunities to exploit bullpen fatigue or depth mismatches. In future work, incorporating contextual bullpen data—such as relievers’ recent usage or rest days—could enhance predictive power.</p></li>
+<li><p><strong>Expected stats signal potential shifts</strong>: Gaps between actual and expected batting average (xBA) can correspond with changes in team scoring, indicating both positive and negative regression toward underlying performance levels.</p></li>
+</ul>
+</section>
+<section id="prop-bets" class="level3">
+<h3 class="anchored" data-anchor-id="prop-bets">Prop Bets</h3>
+<ul>
+<li><p><strong>Still finalizing preview history and run value metrics. For now, here’s how the scoring works</strong>:</p></li>
+<li><p>Getting a Hit (H ≥ 1): +40 This assumes a payout ratio where a successful bet returns 4x your original stake.</p></li>
+<li><p>Getting 2+ Total Bases (TB &lt; 2): –170 This reflects the steep odds, where missing the mark would cost you 17x your bet. We still need to do some tweaking and modifying for this.</p></li>
+<li><p><strong>Individual player prop prediction achieves solid academic performance</strong>: Our machine learning models for individual player props achieved 0.549 AUC, closely aligning with the established academic baseline of 0.552 AUC (Elfrink, 2018). This performance demonstrates that meaningful signal exists in player statistics even within efficient prop betting markets, providing a foundation for future model enhancement.</p></li>
+<li><p><strong>Methodological rigor enables reliable results</strong>: Through strict validation procedures and elimination of data leakage, our models achieved realistic performance expectations rather than artificially inflated metrics. The absence of same-game features in our importance rankings confirms successful prevention of information leakage while maintaining predictive capability.</p></li>
+<li><p><strong>Seasonal statistics provide core predictive foundation</strong>: Feature importance analysis revealed that established seasonal performance metrics (batting average, OPS, wOBA) dominate individual player prediction, validating that player ability rather than game-specific circumstances drives prop betting outcomes. Historical per-game rates prove valuable for normalizing performance across different playing contexts.</p></li>
+</ul>
+</section>
+</section>
+<section id="implications" class="level2">
+<h2 class="anchored" data-anchor-id="implications">Implications</h2>
+<p>Our research demonstrates that analytical approaches to MLB betting market analysis can identify potential value opportunities across both team-level and individual player markets. The combination of team scoring models, individual prop prediction, and interactive matchup analysis creates a comprehensive framework for market evaluation that addresses multiple betting contexts within professional baseball.</p>
+<p>The hybrid methodology successfully bridges traditional statistical analysis with modern machine learning techniques while maintaining academic rigor through proper validation and data leakage prevention. This approach provides a replicable framework for sports betting research that prioritizes methodological soundness over inflated performance claims, contributing to more reliable research standards in this emerging field.</p>
+<p>The solid performance achieved by our models—clustering around established academic baselines—validates market efficiency research suggesting that sustainable edges in professional sports betting are necessarily modest. Rather than claiming exceptional results, our work establishes realistic expectations for legitimate MLB prediction models and provides tools for comprehensive market analysis.</p>
+<p>The planned integration of live odds data represents the critical next phase for translating statistical predictions into practical betting applications. By implementing odds shopping across multiple sportsbooks and comparing model probabilities with market prices, future work can test whether identified statistical edges translate to profitable outcomes in real betting scenarios.</p>
+</section>
+<section id="future-directions" class="level2">
+<h2 class="anchored" data-anchor-id="future-directions">Future Directions</h2>
+<p>Future work will focus on enhancing model performance through expanded data integration. Key opportunities include incorporating weather conditions, ballpark factors, lineup position effects, and pitcher-specific matchup data directly into machine learning models. Additionally, developing rolling performance indicators and recent form metrics could capture player momentum and health status more effectively than season-long averages alone. The integration of advanced Statcast metrics, while carefully avoiding data leakage, may provide additional signal for both team and individual player outcomes. Real-time model updating systems that adapt to changing player conditions throughout the season represent another promising avenue for improving prediction accuracy.</p>
+</section>
+<section id="ethical-considerations" class="level2">
+<h2 class="anchored" data-anchor-id="ethical-considerations">Ethical Considerations</h2>
+<section id="data-privacy-and-sources" class="level3">
+<h3 class="anchored" data-anchor-id="data-privacy-and-sources">Data Privacy and Sources</h3>
+<p>The data utilized in this research consists entirely of publicly available information from professional baseball games, including Statcast measurements, player performance statistics, and sportsbook pricing data from both regulated and offshore operators. No personally identifiable information beyond public player names and performance metrics was collected. All data represents factual, objective measures that are routinely published within the sports analytics community.</p>
+</section>
+<section id="responsible-gambling-considerations" class="level3">
+<h3 class="anchored" data-anchor-id="responsible-gambling-considerations">Responsible Gambling Considerations</h3>
+<p>The primary ethical consideration in this research concerns its potential application to sports betting activities. Several critical limitations and risks must be emphasized:</p>
+<p><strong>No Guaranteed Profits</strong>: Even if theoretical positive expected value opportunities are identified, variance inherent in probabilistic outcomes means that substantial losses remain possible over both short and extended periods. Historical performance does not guarantee future results.</p>
+<p><strong>Variance and Risk Management</strong>: The high variance nature of sports betting means that even systematically profitable approaches can experience extended losing streaks that exceed many individuals’ financial tolerance. Anyone considering application of these findings must thoroughly understand proper bankroll management principles and position sizing strategies.</p>
+<p><strong>Problem Gambling Risks</strong>: This research is intended solely for academic and educational purposes. We strongly advise that anyone considering wagering activities seek education on responsible gambling practices and never risk money they cannot afford to lose entirely.</p>
+<p><strong>Market Evolution</strong>: Betting markets continuously evolve as operators adjust to new information. Any identified inefficiencies may diminish as markets adapt, potentially rendering historical findings obsolete.</p>
+<p><strong>Disclaimer</strong>: This research is conducted for academic purposes only. Any application of these findings to actual betting activities is undertaken entirely at the user’s own risk. The authors accept no responsibility for financial losses that may result from application of this research. Readers are strongly encouraged to thoroughly research proper bankroll management techniques and to seek professional guidance on responsible gambling practices before considering any wagering activities.</p>
+</section>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Galekwa2024" class="csl-entry" role="listitem">
+Galekwa, René Manassé, and colleagues. 2024. <span>“A Systematic Review of Machine Learning in Sports Betting: Techniques, Challenges, and Future Directions.”</span> <em>arXiv Preprint arXiv:2410.21484</em>. <a href="https://arxiv.org/html/2410.21484v1">https://arxiv.org/html/2410.21484v1</a>.
+</div>
+<div id="ref-Huang2021" class="csl-entry" role="listitem">
+Huang, Mei-Ling, and Yi-Zhen Li. 2021. <span>“Use of Machine Learning and Deep Learning to Predict the Outcomes of Major League Baseball Matches.”</span> <em>Applied Sciences</em> 11 (10): 4499. <a href="https://doi.org/10.3390/app11104499">https://doi.org/10.3390/app11104499</a>.
+</div>
+<div id="ref-Hubacek2019" class="csl-entry" role="listitem">
+Hubáček, Ondřej, Gustav Šourek, and Filip Železný. 2019. <span>“Exploiting Sports-Betting Market Using Machine Learning.”</span> <em>Applied Soft Computing</em> 83: 105654. <a href="https://doi.org/10.1016/j.asoc.2019.105654">https://doi.org/10.1016/j.asoc.2019.105654</a>.
+</div>
+<div id="ref-Li2022" class="csl-entry" role="listitem">
+Li, Shuo-Fang, Mei-Ling Huang, and Yi-Zhen Li. 2022. <span>“Exploring and Selecting Features to Predict the Next Outcomes of MLB Games.”</span> <em>Entropy</em> 24 (2): 264. <a href="https://doi.org/10.3390/e24020264">https://doi.org/10.3390/e24020264</a>.
+</div>
+<div id="ref-AllThePicksEdge2023" class="csl-entry" role="listitem">
+Naomi. 2023. <span>“The Sportsbook Edge: Understanding How the House Always Wins.”</span> <a href="https://allthepicks.com/betting-edge/">https://allthepicks.com/betting-edge/</a>.
+</div>
+<div id="ref-Vandenbruaene2022" class="csl-entry" role="listitem">
+Vandenbruaene, Jonas, Jan Annaert, and Marc De Ceuster. 2022. <span>“Efficient Spread Betting Markets: A Literature Review.”</span> <em>Journal of Sports Economics</em> 23 (4): 442–79. <a href="https://doi.org/10.1177/15270025211071042">https://doi.org/10.1177/15270025211071042</a>.
+</div>
+<div id="ref-Walsh2024" class="csl-entry" role="listitem">
+Walsh, Sean, and Mayukh Joshi. 2024. <span>“Machine Learning for Sports Betting: Should Model Selection Be Based on Accuracy or Calibration?”</span> <em>Finance Research Letters</em> 60: 104814. <a href="https://doi.org/10.1016/j.frl.2024.104814">https://doi.org/10.1016/j.frl.2024.104814</a>.
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
