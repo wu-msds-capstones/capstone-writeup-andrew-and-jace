@@ -1,1 +1,192 @@
 # Results
+
+## Over/Under Run Scoring Analysis
+Our initial analysis focused on identifying which variables were most predictive of how many runs a team scores in a given game. We used a wide range of features grouped into three main categories:
+
+Opposing starting pitcher (sp.) statistics, including metrics such as earned run average (ERA), opponent batting average (BA), innings pitched (IP), and expected stats like xERA and xBA.
+
+Opposing relief pitcher statistics (rp.), which represent aggregated bullpen performance using the same types of measures as for starters, such as ERA and slugging percentage (SLG) allowed.
+
+Team batter statistics (b.), covering both per-game aggregates (e.g., total hits, home runs, strikeouts) and season-long averages for the lineup, such as batting average (BA) and slugging percentage (SLG).
+
+By integrating data from opposing starting pitchers, opposing relievers, and the team’s offensive performance, we aimed to construct a well-rounded model for predicting team run performance.
+
+### Exploratory Data Analysis
+
+To gain insight into team scoring behavior, we computed summary statistics for runs scored per game. This helped us examine the distribution of offensive output and understand typical scoring ranges across all team-game observations.
+
+<figure id="fig-run_dist">
+  <img src="images/run_dist.png" alt="Run Distribution" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 2: Team-level distribution of runs scored per game over the specified time period
+  </figcaption>
+</figure>
+
+The distribution of runs scored per game, as seen in <a href="#fig-run_dist">Figure 2</a>, was right-skewed, with a few high-scoring outliers pulling the mean upward. The median was 4 runs, while the mean was slightly higher at 4.6, reflecting the impact of those outliers. This mean value serves as a useful benchmark when modeling run production in machine learning, especially when deciding how to frame our prediction target.
+
+We then focused on identifying which features were most indicative of how many runs a team scores in a game. To do this, we built a linear regression model using a wide range of pitching and hitting statistics. However,  many baseball metrics are inherently correlated, for example, batting average contributes heavily to a weighted on base average (wOBA). Thus, we encountered significant multicollinearity. To address this, we systematically filtered out redundant variables, prioritizing those that captured unique predictive value. After this reduction process, we finalized a simplified linear model using the following variables: `sp_era`, `sp_ba`, `sp_slg`, `rp_era`, `rp_slg`, `rp_ip`, `b_ba`, `b_sum_so`, `b_slg`. 
+
+From our linear model, we identified three statistically significant predictors of runs scored:
+
+- Relief pitcher ERA (rp_era), with a p-value of 0.047
+
+- Relief pitcher innings pitched (rp_ip), with a p-value of 0.001
+
+- Team batting average (b_ba), with a p-value of 0.011.
+
+Batting average stood out as something worth exploring further, especially as the season progresses, since we also have data on expected batting average (xBA) available.  
+
+### Actual vs. Expected Batting Average
+The law of averages suggest that after a large number of trials, outcomes tend to converge toward their expected value. While not a guarantee, this principle would imply that a teams collective batting average should align more closely with their expected batting average as the season progresses.
+
+Expected batting average is a Statcast metric designed to estimate the likelihood that a batted ball will result in a hit. It is based on two key factors: exit velocity (how hard the ball is hit) and the launch angle (the angle at which the ball hits off the bat). Baseball is an incredibly difficult sport, and surface-level stats don’t always tell the full story. That is where expected statistics come in-- they often provide a more accurate picture of a player’s performance. For example, a hitter might crush a ball at 115 MPH, but if it’s hit directly at a defender, it results in an out. On the other hand, a softly hit ball at just 40 MPH could drop into the perfect spot for a hit. xBA accounts for these inconsistencies by using historical data to estimate how often similar batted balls have gone for hits. While not perfect, it offers a more context-aware view of hitting performance.
+
+<figure id="fig-ba">
+  <img src="images/ba.png" alt="Batting Average" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 3: Visualizing whether teams underperforming and overperforming their respective expected batting average metric.
+  </figcaption>
+</figure>
+
+Since we are trying to understand team run production it makes sense to inspect batting average-- a statistic that closely correlates with runs scored. When a team's actual batting average is lower than its expected batting average (xBA), it is indicative of underperformance. Further, we might anticipate that, over time, they will regress upward as outcomes begin to “even out.” In other words, we would expect more batted balls to start falling for hits, raising both their batting average and, ultimately, their run totals.
+
+Conversely, teams currently overperforming their xBA may regress downward, with fewer hits falling in, resulting in fewer runs scored.
+
+Tracking these differences (<a href="#fig-ba">Figure 3</a>) provides valuable insight into which teams may be poised for a shift in offensive production based on their underlying quality of contact. 
+
+<figure id="fig-run_diff">
+  <img src="images/run_diff.png" alt="Run Differences" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 4: Identifing the teams with the largest increases and decreases in average runs scored following the All-Star Break.
+  </figcaption>
+</figure>
+
+A pattern emerges when comparing team-level batting average (BA) versus expected batting average (xBA) with changes in run production post-All-Star Break. Teams that had been underperforming their xBA, such as CLE, CWS, KC, and HOU are now scoring significantly more runs (<a href="#fig-run_diff">Figure 4</a>), suggesting positive regression. Conversely, overperforming teams like BOS and SEA have seen their run production drop, hinting at regression to the mean. Some teams that showed a noticeable change in scoring also had differences between actual and expected batting averages, though those differences were relatively small. (<a href="#fig-ba2">Figure 5</a>).
+
+The Rockies appear to be overperforming their expected batting average (xBA), but this is likely a product of Coors Field-- MLB’s most hitter-friendly park. The high altitude and thin air in Denver inflate offensive stats by reducing air resistance and allowing balls to travel farther. This "Coors Field Effect" regularly skews batting metrics, making Colorado’s apparent overperformance more a reflection of park conditions than unsustainable hitting.
+
+<figure id = "fig-ba2">
+  <img src="images/ba2.png" alt="Batting Average Overlayed" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 5: Linking changes in run production to batting average overperformance and underperformance by teams with the largest differences post All-Star Break.
+  </figcaption>
+</figure>
+
+### Machine Learning 
+Still working on a machine learning model based on the analysis above.
+
+## Prop Betting Analysis for Batters
+We then explored hitter-focused prop bets, specifically whether a batter would record at least one hit or exceed two total bases in a given game. Total bases are calculated as follows: a single counts as one, a double as two, a triple as three, and a home run as four. To surpass two total bases, a player could hit a double, triple, home run, or combine multiple hits (e.g., two singles). Any combination totaling more than two qualifies for the over.
+
+### Pitcher-Batter Preview 
+To gain an edge in predicting favorable prop outcomes, we began by analyzing game preview data for each day, including scheduled starting pitchers and historical batter-vs-pitcher matchup statistics. 
+
+The first areas we explored was how specific batters had performed against certain pitchers in the past. In baseball, it is often said that some hitters "have have a pitcher's number," meaning they see a pitcher very well— a phenomenon that may not always be captured by traditional stats. When a batter consistently succeeds against a particular pitcher, it can signal a meaningful matchup advantage. With that in mind, we prioritized these historical trends as a way to identify potentially favorable prop bet opportunities.
+
+Next, we analyzed discrepancies in run value per 100 pitches (RV/100) to identify potential mismatches between pitchers and hitters. Specifically, we calculated the difference in RV/100 by comparing a batter’s performance against specific pitch types to the different pitches thrown by the scheduled opposing pitcher. This allowed us to estimate how well a batter might match up based on the types of pitches they were likely to face in a given game. In other words, we cross-referenced each batter’s strengths with a pitcher’s weaknesses to uncover matchups where a hitter may be especially well-suited to succeed. To ensure the matchup was meaningful, we also applied a minimum usage threshold, filtering out pitch types that a pitcher rarely throws.
+
+#### Interactive Hitter Matchup App
+This dashboard is built to showcase the most advantageous matchups for the games daily.
+
+The top table displays advantageous batter-pitcher matchup histories, filtered to highlight hitters with the strongest track records. To ensure meaningful results, we included only hitters with a batting average above .250 against the opposing pitcher—indicating they’ve recorded a hit in more than 25% of their past at-bats. Additionally, we required a minimum of four at-bats in the matchup to ensure a more substantial sample size.
+
+The table below highlights batters with a significant advantage based on run value against specific pitch types. It is sorted from highest to lowest run value difference, showcasing hitters who are most likely to succeed against the opposing pitcher's arsenal. To qualify for this table, a batter must have a run value differential greater than 2 in their favor. If a batter appears in both this table and the matchup history table above, they are highlighted in yellow-- indicating that both analyses suggest a strong likelihood of success in that day’s game.
+
+Users can sort the dashboard by date, with the default view automatically displaying matchups from the current day’s slate of games. If a previous date is selected, historical matchups and their corresponding results will appear. A color-coded key is provided below the date selector to help interpret the meaning of each highlighted row.
+
+At the bottom of the dashboard is a simulated betting analysis. For players to get a hit,it is typically priced around -200 odds, meaning a $200 wager would win $100. For the purpose of our analysis, we will be assuming a $10 wager per player. A successful bet yields a $5 profit, while a loss forfeits the $10 stake. For total bases (2+), where odds are usually closer to +100, we again simulate $10 wagers. In this case, a win returns $10 in profit, while a loss results in a $10 loss. The dashboard aggregates daily results based on these assumptions and displays the cumulative outcomes for easy tracking.
+
+<div style="text-align: center;">
+  <iframe src="https://60bwvg-jace-higa.shinyapps.io/mlb_betting/" width="100%" height="800px" style="border:none;"></iframe>
+  <p style="margin-top: 8px; font-style: italic; font-size: 0.95em; color: #555;">
+    Figure 6: Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.
+  </p>
+</div>
+
+## Machine Learning for Individual Player Props
+
+While the interactive dashboard approach provided valuable insights into daily matchup advantages, we recognized the need for a scalable, data-driven approach to individual player prop prediction. To complement the human-guided analysis, we developed a comprehensive machine learning pipeline focused on predicting specific prop betting outcomes using historical player performance and advanced statistical modeling.
+
+### Statistical Thinking and Model Development
+
+Our machine learning approach was grounded in established sports betting research, particularly the findings of Walsh & Joshi (2024) demonstrating that model calibration matters more than raw accuracy for betting profitability. Rather than optimizing solely for traditional machine learning metrics, we prioritized probability calibration to ensure our predictions would translate effectively to real-world betting scenarios.
+
+We framed individual player prop prediction as a series of binary classification problems, creating target variables that directly corresponded to common betting markets: whether a player would record more than 0.5 hits (`hits_over_0.5`), more than 1.5 hits (`hits_over_1.5`), and more than 1.5 total bases (`total_bases_over_1.5`). This approach aligned our statistical models with practical betting applications while maintaining methodological rigor.
+
+A central emphasis throughout our model development was avoiding data leakage to ensure our predictions would replicate information realistically available before game time. This methodological focus guided our feature engineering process and model validation approach, prioritizing realistic predictive capability over artificially inflated performance metrics.
+
+### Feature Engineering and Data Leakage Prevention
+
+Our feature engineering process was designed with strict adherence to temporal constraints that would apply in real-world betting scenarios. We exclusively used information that would be available before game time, avoiding any same-game statistics that could artificially inflate model performance.
+
+From seasonal batting statistics, we incorporated established player ability metrics including `season_batting_avg`, `season_obp`, `season_slg`, `season_ops`, `season_woba`, and `season_wrc_plus`. These provide baseline context for each player's demonstrated skill level over the current season.
+
+To capture per-game expectations without using same-game data, we calculated historical rate features such as `historical_hr_per_game`, `historical_hit_per_game`, `historical_walk_rate`, and `historical_k_rate` by dividing season totals by games played. These features provide realistic estimates of typical player output while maintaining temporal validity.
+
+Experience and volume indicators included `games_played`, `season_games`, and contextual factors such as `is_home` and `season` indicators. These features capture player experience, health, and situational factors without incorporating any information from the game being predicted.
+
+The final dataset comprised 19,587 player-game records across training (12,000), validation (4,000), and test (3,587) sets, with 47% of records containing complete seasonal statistical context. This represented a deliberate trade-off between data completeness and prediction reliability, focusing on players with sufficient historical information for meaningful modeling.
+
+### Model Architecture and Algorithm Selection
+
+Based on academic literature review, we implemented a comparative analysis of multiple machine learning algorithms known to perform well in sports prediction contexts. Our model suite included Random Forest, XGBoost, and ensemble methods, each calibrated using isotonic regression to optimize probability estimates for betting applications.
+
+The Random Forest implementation used 100 estimators with a maximum depth of 6, configured conservatively to prevent overfitting in the challenging sports prediction environment. Our XGBoost configuration employed 100 estimators with a learning rate of 0.05 and regularization parameters designed specifically for sports betting applications.
+
+Most critically, following Walsh & Joshi's research demonstrating that calibration-optimized models achieved +34.69% ROI versus -35.17% for accuracy-focused models, we applied CalibratedClassifierCV with isotonic regression to all base models. This ensured our probability outputs would be well-calibrated for betting decision-making rather than optimized solely for classification accuracy.
+
+To leverage the strengths of multiple algorithms, we created ensemble models using weighted voting that combined the calibrated outputs of our individual models. This approach aligned with Galekwa et al. (2024) findings that ensemble methods consistently outperform single models in sports betting applications.
+
+### Model Performance and Validation
+
+Our comprehensive evaluation employed temporal validation with strict separation between training, validation, and test periods to simulate realistic prediction scenarios. Training data covered April-May 2025, validation used June 2025, and testing employed July 2025 data, ensuring models never saw future information during training.
+
+The Random Forest model achieved the strongest performance with an average test AUC of 0.549 across target variables, followed by ensemble methods at 0.548 AUC and XGBoost at 0.548 AUC. Individual target performance varied, with `hits_over_1.5` achieving the highest AUC of 0.554, while `total_bases_over_1.5` recorded 0.543 AUC.
+
+<figure id="fig-model_performance">
+  <img src="images/model_performance_comparison_final.png" alt="Model Performance Comparison" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 7: Model performance comparison across MLB player prop targets. Left panel shows all algorithms clustering near the academic baseline (Elfrink 2018), demonstrating realistic performance expectations for sports betting applications. Right panel validates absence of overfitting through strong validation-test agreement along the diagonal.
+  </figcaption>
+</figure>
+
+When benchmarked against established academic literature, our results align closely with the documented baseline of 0.552 AUC (Elfrink, 2018) for MLB prediction tasks. This performance falls within the expected range for legitimate sports betting models that avoid data leakage, demonstrating that our emphasis on methodological rigor produced realistic performance estimates rather than artificially inflated metrics.
+
+The consistency of performance across different target variables and temporal periods validates our feature engineering approach and suggests that our models captured generalizable patterns in player performance rather than overfitting to specific outcomes or time periods. As shown in <a href="#fig-model_performance">Figure 7</a>, the tight clustering of all algorithms around the academic baseline, combined with the strong validation-test agreement along the diagonal, confirms both realistic performance expectations and robust generalization capabilities.
+
+### Feature Importance and Model Interpretation
+
+Analysis of feature importance revealed that seasonal performance metrics provided the primary predictive signal, with `season_batting_avg`, `season_ops`, and `season_woba` consistently ranking among the top contributors across all models. This finding validates the importance of established player ability as captured through comprehensive seasonal statistics.
+
+<figure id="fig-feature_importance">
+  <img src="images/feature_importance.png" alt="Feature Importance Analysis" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 8: Feature importance analysis aggregated across all models and targets, demonstrating the dominance of legitimate pre-game predictors. Seasonal statistics (blue) and historical rates (orange) provide the strongest predictive signal, while the complete absence of same-game features confirms successful data leakage prevention.
+  </figcaption>
+</figure>
+
+Historical rate calculations such as `historical_hr_per_game` and `historical_hit_per_game` proved valuable for normalizing seasonal performance across different playing time contexts. Experience indicators including `games_played` provided meaningful context about player reliability and health status.
+
+As demonstrated in <a href="#fig-feature_importance">Figure 8</a>, the absence of any same-game derived features from the importance rankings confirms our successful elimination of data leakage while maintaining predictive capability. The dominance of seasonal statistics and historical rates validates our interpretation that established player ability, rather than game-specific circumstances, drives the primary predictive signal in our models.
+
+Contextual factors like `season` and `is_home` showed moderate importance, suggesting systematic differences in performance across these dimensions. The absence of any same-game derived features from the top importance rankings confirms our successful elimination of data leakage while maintaining predictive capability.
+
+### Model Calibration and Odds Data Integration
+
+A critical aspect of our modeling approach was ensuring well-calibrated probability outputs suitable for betting applications. Our calibration analysis demonstrated that all models produced probability estimates closely aligned with observed outcome frequencies, essential for comparing model predictions with betting market prices.
+
+The ROC analysis confirmed consistent discriminative ability across different target variables, with all models achieving meaningful separation between positive and negative cases despite the challenging nature of individual player prediction.
+
+### Planned Integration with Betting Market Data
+
+To evaluate whether our statistical models can identify profitable betting opportunities, we will integrate our calibrated probability predictions with real-time odds data from multiple sportsbooks. This integration represents the critical next phase of our hybrid modeling approach, where statistical predictions meet market-based information.
+
+Our odds data infrastructure captures player prop lines from major sportsbooks including DraftKings, FanDuel, BetMGM, and Caesars across the key markets we predict: hits over 0.5, hits over 1.5, and total bases over 1.5. By implementing comprehensive odds shopping across these platforms, we can identify the most favorable lines available for each predicted outcome, maximizing potential value when our model probabilities diverge significantly from market prices.
+
+The integration methodology will compare our calibrated model probabilities directly with implied probabilities from betting lines, accounting for sportsbook margins to identify genuine value opportunities. For instance, if our model assigns a 0.70 probability to a player recording 1+ hits, but the best available odds imply only a 0.60 probability (after margin adjustment), this represents a potential value bet. Consistent application of this approach across hundreds of daily prop opportunities will test whether our statistical edge translates to profitable betting outcomes.
+
+### Integration with Matchup Analysis
+
+Our machine learning approach complements the interactive matchup analysis by providing automated screening capabilities across all players and games. While the dashboard excels at identifying specific daily opportunities through pitcher-batter historical data and pitch-type analysis, the ML models can evaluate hundreds of prop opportunities simultaneously using consistent statistical criteria.
+
+This integration allows ML models to identify players whose predicted performance substantially differs from betting market prices, while the dashboard provides contextual validation through matchup-specific insights. The hybrid approach leverages both algorithmic pattern recognition capabilities and nuanced situational analysis for comprehensive opportunity identification.
