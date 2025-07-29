@@ -22,11 +22,11 @@ To supplement our scraped data, we incorporated a third source: Baseball Savant,
 The processed data was stored in four normalized tables within our PostgreSQL database. The batter_pitches table captured how individual batters performed against specific pitch types—such as fastballs, sliders, and curveballs. It included advanced metrics like Run Value (a measure of how much a specific pitch type increases or decreases run expectancy when thrown to that specific batter) and expected batting average to estimate likely outcomes. Similarly, the pitcher_pitches table reflected how effective each pitcher was with their various pitch types, using the same set of metrics but from the pitcher’s perspective. The batter_statcast and pitcher_statcast tables provided aggregated performance statistics that were not pitch-specific, offering a broader view of each player’s season-level tendencies. This Statcast data was particularly valuable as it combined pitch-level insights with overall performance metrics, enabling a more complete evaluation of both hitters and pitchers. 
 
 ### pybaseball
-Our next source was the pybaseball Python package, which provided access to both MLB’s Statcast system and FanGraphs’ season-level statistics. This data enriched our dataset with advanced metrics such as batted ball tracking, pitch characteristics, and sabermetric indicators. Using pybaseball.statcast(), we collected pitch-level data spanning over a full season, which was then aggregated into player-game summaries. From FanGraphs, we retrieved seasonal statistics for both batters and pitchers, adding broader context around player performance.
+Our next source was the pybaseball Python package, which provided access to both MLB’s Statcast system and FanGraphs’ season-level statistics. This data enriched our dataset with advanced metrics such as batted ball tracking, pitch characteristics, and sabermetric indicators. Using pybaseball.statcast(), we collected pitch-level data spanning over a full season, which was then aggregated into player-game summaries. From FanGraphs, we retrieved seasonal statistics for both batters and pitchers, adding broader context around player performance. 
 
 To unify these sources, we relied on the players table to bridge the differing identifier systems used by Statcast and FanGraphs. Using player_id's, we were able to integrate detailed tracking data with season-level statistics across 537 unique players. This join enabled us to capture both granular and long-term perspectives on performance.
 
-Once collected, the data was processed into PostgreSQL using SQL-based transformations, similar to our statsapi pipeline. This structure supported efficient querying across pitch-level, game-level, and seasonal data, and laid the groundwork for downstream modeling and analysis.
+Only historical data was needed so our scraper ran once and the data collected was pushed into PostgreSQL. This structure supported efficient querying across pitch-level, game-level, and seasonal data, and laid the groundwork for downstream modeling and analysis.
 
 ### oddsapi
 Our betting market data was sourced using the OddsAPI feed, which provided structured JSON data on sportsbook offerings for player props such as hits, total bases, and home runs. This information was retrieved using the same custom scraper architecture used in other parts of the project. For consistency and integration with our game-level data, we joined odds records to player performance using a combination of game date and team abbreviations, ensuring alignment across sources despite the absence of shared unique identifiers.
@@ -198,8 +198,6 @@ This table contains pitch-level Statcast data used for machine learning feature 
 | `launch_angle`  | Launch Angle           | Vertical angle of batted ball trajectory in degrees.                |
 | `release_speed` | Pitch Velocity         | Speed of pitch when released in mph.                                |
 | `pitch_type`    | Pitch Type Code        | Abbreviated pitch type (FF=four-seam fastball, SL=slider, etc.).    |
-| `stand`         | Batter Handedness      | L=left-handed batter, R=right-handed batter.                        |
-| `p_throws`      | Pitcher Handedness     | L=left-handed pitcher, R=right-handed pitcher.                      |
 | `woba_value`    | Weighted On-Base Value | Run value assigned to the specific pitch outcome.                   |
 :::
 
