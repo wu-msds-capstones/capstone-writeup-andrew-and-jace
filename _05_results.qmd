@@ -24,7 +24,17 @@ To gain insight into team scoring behavior, we computed summary statistics for r
 
 The distribution of runs scored per game, as seen in <a href="#fig-run_dist">Figure 2</a>, was right-skewed, with a few high-scoring outliers pulling the mean upward. The median was 4 runs, while the mean was slightly higher at 4.6, reflecting the impact of those outliers. This mean value serves as a useful benchmark when modeling run production in machine learning, especially when deciding how to frame our prediction target.
 
-We then focused on identifying which features were most indicative of how many runs a team scores in a game. To do this, we built a linear regression model using a wide range of pitching and hitting statistics. However,  many baseball metrics are inherently correlated, for example, batting average contributes heavily to a weighted on base average (wOBA). Thus, we encountered significant multicollinearity. To address this, we systematically filtered out redundant variables, prioritizing those that captured unique predictive value. After this reduction process, we finalized a simplified linear model using the following variables: `sp_era`, `sp_ba`, `sp_slg`, `rp_era`, `rp_slg`, `rp_ip`, `b_ba`, `b_sum_so`, `b_slg`. 
+We then focused on identifying which features were most indicative of how many runs a team scores in a game. To do this, we built a linear regression model using a wide range of pitching and hitting statistics. However,  many baseball metrics are inherently correlated, for example, batting average contributes heavily to a weighted on base average (wOBA). Thus, we encountered significant multicollinearity. To address this, we systematically filtered out redundant variables, prioritizing those that captured unique predictive value. After this reduction process, we finalized a simplified linear model using the following variables:
+<abbr title="Starting Pitcher's Earned Run Average – the average number of earned runs a starting pitcher allows per nine innings pitched." style="color: #1f77b4;">sp_era</abbr>, 
+<abbr title="Starting Pitcher's Batting Average Against – the average number of hits allowed per at-bat by the starting pitcher." style="color: #1f77b4;" >sp_ba</abbr>, 
+<abbr title="Starting Pitcher's Slugging Percentage Against – the average total bases allowed per at-bat by the starting pitcher." style="color: #1f77b4;">sp_slg</abbr>, 
+<abbr title="Relief Pitcher's Earned Run Average – the average number of earned runs a relief pitcher allows per nine innings pitched." style="color: #1f77b4;">rp_era</abbr>, 
+<abbr title="Relief Pitcher's Slugging Percentage Against – the average total bases allowed per at-bat by the relief pitcher." style="color: #1f77b4;">rp_slg</abbr>, 
+<abbr title="Relief Pitcher's Innings Pitched – the total number of innings completed by a relief pitcher for a specified game." style="color: #1f77b4;">rp_ip</abbr>, 
+<abbr title="The mean batting average of all batters expected to appear in the lineup for a given game." style="color: #1f77b4;" >b_ba</abbr>, 
+<abbr title="Total number of strikeouts by the team's batters in the specified game." style="color: #1f77b4;">b_sum_so</abbr>, and
+<abbr title="The mean slugging percentage of all batters expected to appear in the lineup for a given game, measures power-hitting ability." style="color: #1f77b4;">b_slg</abbr>.
+
 
 From our linear model, we identified three statistically significant predictors of runs scored:
 
@@ -72,8 +82,55 @@ The Rockies appear to be overperforming their expected batting average (xBA), bu
   </figcaption>
 </figure>
 
-### Machine Learning 
-Still working on a machine learning model based on the analysis above.
+## Machine Learning for Over/Unders
+To model over/under outcomes in MLB games, we framed the problem as a binary classification task, predicting whether a team would score over or under 4.5 runs. The 4.5 threshold reflects the historical team average of 4.6 runs, providing a meaningful baseline for classification.
+
+For the classification model, we selected a Random Forest algorithm. While previous research has shown both Random Forest and XGBoost to be effective for binary classification tasks, in our case, the Random Forest model outperformed XGBoost by over 0.1 in Kappa score. Additionally, Random Forests are generally easier to interpret, especially when examining feature importance, making them a more transparent choice for communicating our models insights.
+
+### Feature Engineering
+We engineered two key features: <span style="color: #1f77b4;">rolling_runs_5</span> and <span style="color: #1f77b4;">team_rolling_ba_5</span>. The <span style="color: #1f77b4;">rolling_runs_5</span> feature captures the average number of runs a team has scored over its last five games, while <span style="color: #1f77b4;">steam_rolling_ba_5</span> reflects the team’s batting average across the same span. These features provide recent performance context and turned out to be strong predictors in determining whether a team would score over or under 4.5 runs, as illustrated in (<a href="#fig-var">Figure 6</a>).
+
+Additionally, we also incorporated several existing metrics into our model, including <abbr title="Opponent Starting Pitcher's Expected Batting Average – the projected batting average against a starting pitcher based on quality of contact metrics." style="color: #1f77b4;">sp_x_ba</abbr>, <abbr title="Opponent Starting Pitcher's Earned Run Average – the average number of earned runs a starting pitcher allows per nine innings pitched." style="color: #1f77b4;">sp_era</abbr>, <abbr title="Average Expected Batting Average (xBA) of the starting lineup – the projected batting average based on quality of contact and strikeouts." style="color: #1f77b4;">b_x_ba</abbr>, and <abbr title="Batting Slugging Percentage – total bases divided by at-bats, measuring a hitter's power." style="color: #1f77b4;">b_slg</abbr>.
+
+### Model Performance 
+To evaluate the effectiveness of our Random Forest classifier in predicting whether a team would score over or under 4.5 runs, we examined several performance metrics that offer complementary insights into model quality and reliability.
+
+The Area Under the Receiver Operating Characteristic Curve (AUC) was 0.756, reflecting strong discriminative performance. This indicates that, when comparing a randomly selected game in which a team scored over 4.5 runs to one in which it did not, the model assigns a higher probability to the over outcome approximately 76% of the time. Our targeted result can be influenced by a wide range of dynamic and interrelated variables, thus an AUC above 0.75 indicates the model is reliably distinguishing between high and low scoring outcomes. This result suggests that the model is effectively capturing underlying patterns that differentiate high-scoring from low-scoring team performances. This performance is further illustrated by the ROC curve in <a href="#fig-roc">Figure 6</a>, which visualizes the model’s trade-off between sensitivity and specificity across all classification thresholds. The steep initial rise and bowed shape of the curve indicate effective separation between the two classes—teams that scored over 4.5 runs and those that did not—culminating in an AUC of 0.756. This reinforces the model’s reliability in identifying scoring patterns relevant to over/under predictions.
+
+<figure id = "fig-roc">
+  <img src="images/roc.png" alt="ROC Graph" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 6: ROC curve for the Random Forest model predicting whether a team scores over 4.5 runs. The curve illustrates the trade-off between sensitivity (true positive rate) and specificity (true negative rate). The model shows strong performance, with the curve rising well above the diagonal line 
+  </figcaption>
+</figure>
+
+In addition to AUC, overall accuracy provides a more intuitive sense of model correctness. The model achieved an overall accuracy of 72.5%, correctly predicting the outcome in nearly three-quarters of all games. This far exceeds the No Information Rate of 55.8%, which reflects the accuracy one would achieve by always predicting the majority class (in this case teams scoring under 4.5 runs). The lift over this baseline confirms that the model provides predictive value rather than simply echoing the most common outcome.
+
+We also evaluated sensitivity, which measures how well the model identifies games where a team scored over 4.5 runs. It achieved a rate of 76.6%, meaning that when a team did go over, the model predicted it correctly more than 75% of the time. This level of performance is especially useful in betting contexts, where one would need to predict the over correctly more than 52.4% of the time just to break even. The model’s specificity was 67.2%, indicating that it also performed well at identifying games that went under. 
+
+Finally, we considered Cohen’s Kappa, which was 0.44. Unlike raw accuracy, Kappa adjusts for the possibility of correct predictions occurring by chance, offering a more rigorous measure of model agreement. A value of 0.44 indicates moderate agreement beyond chance, reinforcing that the model captures real predictive signals. While not exceptionally high, this level of Kappa still demonstrates that the model performs meaningfully better than random guessing—an important outcome given the inherent variability when predicting team run totals.
+
+Together, these results show that our Random Forest model performs well across both interpretability and predictive accuracy dimensions, making it a valuable tool for forecasting team run production in MLB games.
+
+### Feature Importance
+<figure id = "fig-var">
+  <img src="images/var.png" alt="Important Variables for O/U ML" width="800">
+  <figcaption style="font-size: 8px; color: #555;">
+    Figure 7: This figure illustrates the relative importance of each feature in predicting whether a team will score over 4.5 runs. Higher values indicate greater contribution to the model’s predictive accuracy.
+  </figcaption>
+</figure>
+
+The variable importance plot highlights the relative contribution of each feature to the model’s predictive accuracy. Among all inputs, the engineered feature <span style="color: #1f77b4;">rolling_runs_5</span> overwhelmingly emerged as the most influential. This feature, which captures a team's recent scoring momentum, proved to be the strongest indicator of whether a team would surpass the 4.5 run threshold. Its high importance reinforces the value of short-term performance trends in forecasting offensive output.
+
+Following this, <span style="color: #1f77b4;">team_rolling_ba_5</span>, which represents the team's batting average over the last five games, also ranked highly. This measure captures the overall quality of a team’s hitting during recent matchups, serving as a gauge of a team's ability to consistently get hits.
+
+Traditional pitching and matchup-based metrics also contributed meaningfully. For instance, <span style="color: #1f77b4;">sp_x_ba</span> and <span style="color: #1f77b4;">sp_era</span>, which reflect the expected batting average and earned run average of the opposing starting pitcher, respectively, helped capture the quality of pitching faced by the offense. These features provide critical context for how difficult it might be for a team to score in a given game.
+
+Similarly, <span style="color: #1f77b4;">b_x_ba</span> (expected batting average of the lineup) and <span style="color: #1f77b4;">b_slg</span> (slugging percentage) contributed additional insight into the underlying hitting power and contact quality of the offensive side.
+
+Overall, the combination of short-term offensive momentum, recent team batting metrics, and opposing pitcher quality formed the backbone of the model’s predictive framework. These findings suggest that blending engineered features with traditional matchup statistics enhances the model’s ability to predict over/under outcomes accurately.
+
+
 
 ## Prop Betting Analysis for Batters
 We then explored hitter-focused prop bets, specifically whether a batter would record at least one hit or exceed two total bases in a given game. Total bases are calculated as follows: a single counts as one, a double as two, a triple as three, and a home run as four. To surpass two total bases, a player could hit a double, triple, home run, or combine multiple hits (e.g., two singles). Any combination totaling more than two qualifies for the over.
@@ -99,7 +156,7 @@ At the bottom of the dashboard is a simulated betting analysis. For players to g
 <div style="text-align: center;">
   <iframe src="https://60bwvg-jace-higa.shinyapps.io/mlb_betting/" width="100%" height="800px" style="border:none;"></iframe>
   <p style="margin-top: 8px; font-style: italic; font-size: 0.95em; color: #555;">
-    Figure 6: Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.
+    Figure 8: Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.
   </p>
 </div>
 
@@ -146,13 +203,13 @@ The Random Forest model achieved the strongest performance with an average test 
 <figure id="fig-model_performance">
   <img src="images/model_performance_comparison_final.png" alt="Model Performance Comparison" width="800">
   <figcaption style="font-size: 8px; color: #555;">
-    Figure 7: Model performance comparison across MLB player prop targets. Left panel shows all algorithms clustering near the academic baseline (Elfrink 2018), demonstrating realistic performance expectations for sports betting applications. Right panel validates absence of overfitting through strong validation-test agreement along the diagonal.
+    Figure 9: Model performance comparison across MLB player prop targets. Left panel shows all algorithms clustering near the academic baseline (Elfrink 2018), demonstrating realistic performance expectations for sports betting applications. Right panel validates absence of overfitting through strong validation-test agreement along the diagonal.
   </figcaption>
 </figure>
 
 When benchmarked against established academic literature, our results align closely with the documented baseline of 0.552 AUC (Elfrink, 2018) for MLB prediction tasks. This performance falls within the expected range for legitimate sports betting models that avoid data leakage, demonstrating that our emphasis on methodological rigor produced realistic performance estimates rather than artificially inflated metrics.
 
-The consistency of performance across different target variables and temporal periods validates our feature engineering approach and suggests that our models captured generalizable patterns in player performance rather than overfitting to specific outcomes or time periods. As shown in <a href="#fig-model_performance">Figure 7</a>, the tight clustering of all algorithms around the academic baseline, combined with the strong validation-test agreement along the diagonal, confirms both realistic performance expectations and robust generalization capabilities.
+The consistency of performance across different target variables and temporal periods validates our feature engineering approach and suggests that our models captured generalizable patterns in player performance rather than overfitting to specific outcomes or time periods. As shown in <a href="#fig-model_performance">Figure 9</a>, the tight clustering of all algorithms around the academic baseline, combined with the strong validation-test agreement along the diagonal, confirms both realistic performance expectations and robust generalization capabilities.
 
 ### Feature Importance and Model Interpretation
 
@@ -161,13 +218,13 @@ Analysis of feature importance revealed that seasonal performance metrics provid
 <figure id="fig-feature_importance">
   <img src="images/feature_importance.png" alt="Feature Importance Analysis" width="800">
   <figcaption style="font-size: 8px; color: #555;">
-    Figure 8: Feature importance analysis aggregated across all models and targets, demonstrating the dominance of legitimate pre-game predictors. Seasonal statistics (blue) and historical rates (orange) provide the strongest predictive signal, while the complete absence of same-game features confirms successful data leakage prevention.
+    Figure 10: Feature importance analysis aggregated across all models and targets, demonstrating the dominance of legitimate pre-game predictors. Seasonal statistics (blue) and historical rates (orange) provide the strongest predictive signal, while the complete absence of same-game features confirms successful data leakage prevention.
   </figcaption>
 </figure>
 
 Historical rate calculations such as `historical_hr_per_game` and `historical_hit_per_game` proved valuable for normalizing seasonal performance across different playing time contexts. Experience indicators including `games_played` provided meaningful context about player reliability and health status.
 
-As demonstrated in <a href="#fig-feature_importance">Figure 8</a>, the absence of any same-game derived features from the importance rankings confirms our successful elimination of data leakage while maintaining predictive capability. The dominance of seasonal statistics and historical rates validates our interpretation that established player ability, rather than game-specific circumstances, drives the primary predictive signal in our models.
+As demonstrated in <a href="#fig-feature_importance">Figure 10</a>, the absence of any same-game derived features from the importance rankings confirms our successful elimination of data leakage while maintaining predictive capability. The dominance of seasonal statistics and historical rates validates our interpretation that established player ability, rather than game-specific circumstances, drives the primary predictive signal in our models.
 
 Contextual factors like `season` and `is_home` showed moderate importance, suggesting systematic differences in performance across these dimensions. The absence of any same-game derived features from the top importance rankings confirms our successful elimination of data leakage while maintaining predictive capability.
 
