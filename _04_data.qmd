@@ -1,310 +1,51 @@
 # Data
 
+Our dataset was built by combining information from multiple sources, each selected for its relevance to MLB performance and wagering analysis. Together, these sources contributed complementary perspectives and enabled us to perform the kind of matchup-level analysis needed to explore profitability and uncover potential edges in the betting market.
+
 ## Data Sources
-We collected data from five sources. StatsAPI, pybaseball, and oddsapi were accessed via a custom Python scraper, allowing us to ingest structured data on player performance, advanced metrics, and betting markets. MLB.com was scraped using an automated headless browser to extract dynamically loaded content not available through public APIs. Finally, we sourced supplemental tracking data from Baseball Savant by downloading static CSV files. Together, these pipelines enabled a comprehensive, multi-source dataset suitable for statistical analysis, machine learning, and real-world validation.
+We collected data from five sources, which are outlined in greater detail in the following sections. StatsAPI, pybaseball, and oddsapi were accessed using a custom Python scraper that called their respective APIs directly, allowing us to ingest structured data on player performance, advanced metrics, and betting markets. This approach differed from our Selenium-based web scraper used later for MLB.com, which required automated browser interaction to extract dynamically loaded content not available through the APIs. Finally, we sourced supplemental tracking data from Baseball Savant by downloading static CSV files. Together, these pipelines enabled a comprehensive, multi-source dataset suitable for statistical analysis, machine learning, and real-world validation.
 
 ### statsapi
-The first source was Major League Baseball’s public API, accessed using the statsapi Python package. This provided structured JSON data containing player metadata, team identifiers, game results, and detailed per-game statistics for batters and pitchers. This source served as the foundation for our dataset. To automate collection, we deployed the scraper on Railway with a scheduled task that runs daily at 7:00 AM PST, retrieving the previous day’s game data. The raw JSON was seamlessly parsed using SQL queries in PostgreSQL and loaded into a set of normalized relational tables.
+The first source was Major League Baseball’s public API, accessed using the statsapi Python package. This provided structured JSON data containing player metadata, team identifiers, game results, and detailed per-game statistics for batters and pitchers. This source served as the foundation for our dataset. To automate collection, we deployed the scraper on Railway, a cloud platform that lets us run and schedule scripts automatically without needing to manage any servers. We scheduled our scripts to runs daily at 7:00 AM PST, retrieving the previous day’s game data. The raw JSON was parsed using SQL queries in PostgreSQL and loaded into a set of normalized relational tables.
 
-Our tables included players, teams, games, sides, batter_stats, and pitcher_stats. The players table contains a list of all individuals who appeared in at least one Major League Baseball game from June 21st to the present, each assigned a unique player_id for consistent identification. The teams table includes all 30 MLB teams, each mapped to a unique team_id, enabling team-level joins and analysis. The sides table identifies which team played as the home or away team in each game, an important distinction in baseball since the home team bats second and may have strategic advantages. The batter_stats and pitcher_stats tables store detailed per-game box score data, separated by hitting statsistics and pitching statistics. These stats include traditional and advanced metrics such as hits, home runs, and strikeouts for batters, and innings pitched, earned runs, and walks for pitchers. The use of primary keys such as player_id, game_id, and team_id allowed for seamless joins across tables. This structure enables efficient querying across player appearances, game contexts, and performance metrics, while remaining flexible enough to incorporate additional data sources such as advanced Statcast metrics and other tracking metrics.
+Our tables included players, teams, games, sides, batter_stats, and pitcher_stats. The players table contains a list of all individuals who appeared in at least one Major League Baseball game from June 21st to the present, each assigned a unique player_id for consistent identification. The teams table includes all 30 MLB teams, each mapped to a unique team_id, enabling team-level joins and analysis. The sides table identifies which team played as the home or away team in each game, an important distinction in baseball since the home team bats second and may have strategic advantages. The batter_stats and pitcher_stats tables store detailed per-game box score data, separated by hitting statistics and pitching statistics. These stats include traditional metrics such as hits, home runs, and strikeouts for batters, and innings pitched, earned runs, and walks for pitchers. The use of primary keys such as player_id, game_id, and team_id allowed for seamless joins across tables. This structure enables efficient querying across player appearances, game contexts, and performance metrics, while remaining flexible enough to incorporate additional data sources such as advanced Statcast metrics and other tracking metrics.
 
 
 ### mlb.com
-Our second data source was MLB’s official website, mlb.com, which we scraped using Selenium, a Python package for automated browser interaction. This approach allowed us to extract pre-game matchup information from MLB.com’s preview pages, data not available through the public Stats API. The scraper was designed to click into each game’s “Preview” button, capture the relevant information, then return to the main page and repeat this process for all games scheduled on a given day. The extracted data included valuable context such as probable pitcher matchups and batter-vs-pitcher histories. This scraper was deployed on Railway and scheduled to run slightly earlier than the StatsAPI job, at 6:55 AM PST.
+Our second data source was MLB’s official website, mlb.com, which we scraped using Selenium, a Python package for automated browser interaction. This approach allowed us to extract pre-game matchup information from MLB.com’s preview pages, data not available through the public Stats API. Specifically, we captured scheduled starting pitchers and projected batter matchups, along with historical hitter performance against the opposing pitcher. It enabled us to factor in pre-game context and generate predictions ahead of each day’s games. The scraper was designed to click into each game’s “Preview” button, capture the relevant information, then return to the main page and repeat this process for all games scheduled on a given day. This scraper was deployed on Railway and scheduled to run slightly earlier than the StatsAPI job, at 6:55 AM PST. Unlike the StatsAPI scraper, it focused on collecting information for games scheduled later that same day.
 
-A major challenge with this source was the absence of standardized identifiers such as player or game IDs. To address this, we created a composite key in the preview table using a combination of game_date, batter_name, and pitcher_name to uniquely identify each record. The JSON data gathered was poorly structured so it required an extensive use of regular expressions (REGEX), which made the parsing process significantly more complex.
+A major challenge with this source was the absence of standardized identifiers such as player or game IDs. To address this, we created a composite key in the preview table using a combination of game_date, batter_name, and pitcher_name to uniquely identify each record. The JSON data gathered was unstructured so it required an extensive use of regular expressions (REGEX), which made the parsing process significantly more complex.
 
 In the end, we produced a table called previews, which included the game date, projected starting pitcher, and historical performance data of each batter against that pitcher-- such as home runs, at-bats, and batting average. This table allowed us to enrich our dataset by linking valuable pre-game context with actual in-game performance, enabling more nuanced analyses of matchups and outcomes.
 
 ### Baseball Savant
 To supplement our scraped data, we incorporated a third source: Baseball Savant, a publicly available website that provides detailed, season-long statistics that go beyond traditional box scores. Unlike our other sources, which offered game-by-game data, Baseball Savant's data is cumulative and tracks advanced metrics throughout the season. For example, it includes expected batting average which incorporates exit velocity (how hard the ball is hit) and launch angle (angle at which the player swings their bat) and pitch usage rates, which displays how frequently pitchers throw specific pitch types. The site offers the ability to download the data as CSV files, which we did during the All-Star break to capture a midseason snapshot of player performance. For the purposes of our analysis, we chose to download the data once, as the season is already more than halfway complete and player performance is unlikely to vary significantly over the remaining games. After downloading the CSV files, we cleaned the data by removing unnecessary columns and renaming fields to improve clarity and ensure consistency across our dataset. 
 
-The processed data was stored in four normalized tables within our PostgreSQL database. The batter_pitches table captured how individual batters performed against specific pitch types—such as fastballs, sliders, and curveballs. It included advanced metrics like Run Value (a measure of how much a specific pitch type increases or decreases run expectancy when thrown to that specific batter) and expected batting average to estimate likely outcomes. Similarly, the pitcher_pitches table reflected how effective each pitcher was with their various pitch types, using the same set of metrics but from the pitcher’s perspective. The batter_statcast and pitcher_statcast tables provided aggregated performance statistics that were not pitch-specific, offering a broader view of each player’s season-level tendencies. This Statcast data was particularly valuable as it combined pitch-level insights with overall performance metrics, enabling a more complete evaluation of both hitters and pitchers. 
+The processed data was stored in four normalized tables within our PostgreSQL database. The batter_pitches table captured how individual batters performed against specific pitch types—such as fastballs, sliders, and curveballs. It included advanced metrics like Run Value (a measure of how much a specific pitch type increases or decreases run expectancy when thrown to that specific batter) and expected batting average to estimate likely outcomes. Similarly, the pitcher_pitches table reflected how effective each pitcher was with their various pitch types, using the same set of metrics but from the pitcher’s perspective. The pitcher_statcast table provided aggregated performance statistics that were not pitch-specific, offering a broader view of each pitchers season-level tendencies. This Statcast data was particularly valuable as it combined pitch-level insights with overall performance metrics, enabling a more complete evaluation of both hitters and pitchers. 
 
 ### pybaseball
-Our next source was the pybaseball Python package, which provided access to both MLB’s Statcast system and FanGraphs’ season-level statistics. This data enriched our dataset with advanced metrics such as batted ball tracking, pitch characteristics, and sabermetric indicators. Using pybaseball.statcast(), we collected pitch-level data spanning over a full season, which was then aggregated into player-game summaries. From FanGraphs, we retrieved seasonal statistics for both batters and pitchers, adding broader context around player performance. 
+Our next source was the pybaseball Python package, which provided extended access to MLB’s Statcast system and allowed us to retrieve season-level statistics. This data enriched our dataset with advanced metrics, including batted ball tracking (which measures factors like exit velocity and hit direction), pitch characteristics, and sabermetric indicators (which provide expected values for more precise performance evaluation). Using pybaseball.statcast(), we collected pitch-level data spanning over a full season, which was then aggregated into player-game summaries. We were also able to extract seasonal statistics for batters, adding broader context around batter performance. 
 
-To unify these sources, we relied on the players table to bridge the differing identifier systems used by Statcast and FanGraphs. Using player_id's, we were able to integrate detailed tracking data with season-level statistics across 537 unique players. This join enabled us to capture both granular and long-term perspectives on performance.
+To unify these sources, we used the players table to bridge the gap between the detailed Statcast tracking data and the rest of our dataset. By matching on player_id, as in earlier integrations, we successfully connected granular tracking metrics with season-level statistics for 537 unique players. This join allowed us to capture both game-level performance details and broader, long-term trends across the season.
 
-Only historical data was needed so our scraper ran once and the data collected was pushed into PostgreSQL. This structure supported efficient querying across pitch-level, game-level, and seasonal data, and laid the groundwork for downstream modeling and analysis.
+Only historical data was needed, so our scraper ran once, and the collected data was stored in the batter_statcast table. This table followed a similar structure to pitcher_statcast, but included season-level summaries instead of data limited to the current year. All data was pushed into PostgreSQL, where this structure supported querying across pitch-level, game-level, and seasonal data, laying the groundwork for downstream modeling and analysis.
 
 ### oddsapi
 Our betting market data was sourced using the OddsAPI feed, which provided structured JSON data on sportsbook offerings for player props such as hits, total bases, and home runs. This information was retrieved using the same custom scraper architecture used in other parts of the project. For consistency and integration with our game-level data, we joined odds records to player performance using a combination of game date and team abbreviations, ensuring alignment across sources despite the absence of shared unique identifiers.
 
-The betting data was parsed and stored in PostgreSQL, using fields such as market_type (type of prop bet), price (decimal odds), and point (over/under threshold). Additional fields included bookmaker_key and last_update, allowing us to track line movement and source attribution. Although historical odds are not yet fully populated, this structure enables us to link sportsbook expectations directly to individual player-game performances.
+The betting data was parsed and stored in PostgreSQL, using fields such as market_type (type of prop bet), price (decimal odds), and point (over/under threshold). Additional fields included bookmaker_key and last_update, allowing us to track line movement and source attribution. Although historical odds are not yet fully populated, this structure enables us to link sportsbook expectations directly to individual player-game performances. 
 
-This integration supports downstream use cases such as model backtesting and value identification. By comparing predicted player outcomes to market-implied probabilities, we can evaluate model performance not only in terms of accuracy but also potential profitability. This alignment creates a clear path for analysis centered on identifying inefficiencies in publicly posted betting lines.
+This integration supports downstream use cases such as model backtesting and value identification. This integration supports downstream use cases such as model backtesting and value identification. Backtesting refers to the process of applying a predictive model to historical data to evaluate how well it would have performed in real-world scenarios-- for example, simulating bets on past games based on model predictions and comparing the results to actual outcomes. Value identification involves comparing the model’s predicted probabilities for specific player outcomes (e.g., getting a hit or hitting a home run). By comparing predicted player outcomes to market-implied probabilities from sportsbooks, we can evaluate model performance not only in terms of accuracy but also potential profitability. This alignment creates a clear path for analysis centered on identifying inefficiencies in publicly posted betting lines.
 
 
 ## Data Organization
 In the end the data was organized and combined using third normal form (3NF) to minimize redundancy and maintain reliable links across related data. Our entity-relationship diagram (ERD) (<a href="#fig-erd">Figure 1</a>) provides a clear visual representation, clearly mapping the relationships among all entities derived from our data acquisition process.
 
 <figure id="fig-erd">
-  <img src="images/erd_diagram.png" alt="ERD diagram" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 1: This figure displays an ERD normalized to third normal form (3NF), highlighting primary keys and table relationships.
+  [![ERD diagram](images/erd_diagram.png)](images/erd_diagram.png)
+  <figcaption style="font-size: 10px; color: #555;">
+    Figure 1: This diagram illustrates how our database schema is organized to support complex querying and analysis. At the center, the players, games, and teams tables form the relational backbone, linking to performance-specific tables like batter_stats, pitcher_stats, and their Statcast counterparts. The previews and player_props tables bring in pre-game context and betting market data, while sides defines home/away team roles per game. This structure, normalized to third normal form (3NF), allows us to seamlessly join historical performance, matchup context, and betting odds—enabling detailed statistical modeling, matchup evaluation, and value detection at both the player and game levels.
   </figcaption>
 </figure>
 
-
-
-## Data Dictionaries
-::: {.callout-note collapse=true title="batter_pitches"}
-This table contains underlying aggregated statisical data, which will not show up in the typical box score.(Baseball Savant)
-
-| **Variable**      | **Name**                        | **Description**                                                                 |
-|-------------------|----------------------------------|----------------------------------------------------------------------------------|
-| `batter_id`       | Batter ID                       | Unique identifier for the batter.                                               |
-| `pitch_name`      | Pitch Type                      | Name of the pitch type (e.g., fastball, slider).                                |
-| `rv_100`          | Run Value / 100 Pitches         | Average run value per 100 pitches seen. Measures how well batters hit each pitch. |
-| `rv`              | Run Value                       | Total run value assigned to differnt pitches the batter has seen.                 |
-| `pitches`         | Pitches                         | Total number of pitches thrown or seen.                                         |
-| `pitch_usage`     | Pitch Usage                     | Percentage of time a specific pitch type is used.                               |
-| `pa`              | Plate Appearances               | Number of completed batting appearances, including walks and hit-by-pitches.   |
-| `ba`              | Batting Average                 | Hits divided by at-bats.                                                        |
-| `x_ba`            | Expected Batting Average        | Likelihood a batted ball becomes a hit, based on exit velocity and launch angle.|
-| `slg`             | Slugging Percentage             | Total bases divided by at-bats; measures power.                                 |
-| `x_slg`           | Expected Slugging               | Predicted slugging based on batted ball quality.                                |
-| `woba`            | Weighted On-Base Average        | Gives more weight to extra-base hits than OBP (On Base Percentage).                                  |
-| `x_woba`          | Expected wOBA                   | Predicted wOBA using quality-of-contact data.                                   |
-| `whiff_percent`   | Whiff Percentage                | Percentage of swings that result in misses.                                     |
-| `k_percent`       | Strikeout Percentage            | Strikeouts divided by plate appearances.                                        |
-| `put_away`        | Put Away Percentage             | 2-strike pitches resulting in strikeouts divided by total 2-strike pitches.     |
-| `hard_hit`        | Hard Hit Percentage             | Percentage of batted balls hit at 95+ mph.                                      |
-:::
-
-
-::: {.callout-note collapse=true title="batter_statcast"}
-This table contains aggregated Statcast metrics for batters across different pitch types, including expected and actual performance differentials across batting average, slugging, and wOBA. (Baseball Savant)
-
-| **Variable**      | **Name**                        | **Description**                                                                 |
-|-------------------|----------------------------------|----------------------------------------------------------------------------------|
-| `batter_id`       | Batter ID                       | Unique identifier for the batter.                                                |
-| `season`       | Season                      |  Year in which the statistics are from.                                               |
-| `pa`              | Plate Appearances               | Number of completed batting appearances, including walks and hit-by-pitches.    |
-| `bip`             | Balls In Play                   | Number of batted balls put into play (excluding strikeouts, walks, etc.).        |
-| `ba`              | Batting Average                 | Hits divided by at-bats.                                                         |
-| `x_ba`            | Expected Batting Average        | Likelihood a batted ball becomes a hit, based on exit velocity and launch angle.|
-| `diff_ba`         | BA - xBA                        | Difference between actual and expected batting average.                          |
-| `slg`             | Slugging Percentage             | Total bases divided by at-bats; measures power.                                  |
-| `x_slg`           | Expected Slugging               | Predicted slugging based on batted ball quality.                                 |
-| `diff_slg`        | SLG - xSLG                      | Difference between actual and expected slugging percentage.                      |
-| `woba`            | Weighted On-Base Average        | Gives more weight to extra-base hits than OBP.                                   |
-| `x_woba`          | Expected wOBA                   | Predicted wOBA using quality-of-contact data.                                    |
-| `diff_woba`       | wOBA - xwOBA                    | Difference between actual and expected wOBA.                                     |
-| `batter_id`       | Batter ID                       | Unique identifier for the batter.                                                |
-| `ops`          | OPS            | On-base Plus Slugging — combines on-base % and slugging % to summarize hitter performance. |
-| `wrc_plus`     | wRC+           | Weighted Runs Created Plus — measures a player’s total offensive value, adjusted for park and league. 100 is league average. |
-| `home_runs`    | Home Runs      | Number of home runs hit by the player.                        |
-:::
-
-
-::: {.callout-note collapse=true title="batter_stats"}
-This table captures traditional game-level statistics for each batter, derived from box score data. (statsapi)
-
-| **Variable**      | **Name**             | **Description**                                                              |
-|-------------------|----------------------|------------------------------------------------------------------------------|
-| `game_id`         | Game ID              | Unique identifier for the game.                                              |
-| `batter_id`       | Batter ID            | Unique identifier for the batter.                                            |
-| `team_id`         | Team ID              | Identifier for the team the batter played for in the game.                   |
-| `position`        | Position             | Fielding position the batter played during the game.                         |
-| `ab`              | At-Bats              | Number of official at-bats (excludes walks, HBP, sacrifices).                |
-| `h`               | Hits                 | Number of hits.                                                              |
-| `bb`              | Walks (BB)           | Number of base on balls (walks).                                            |
-| `r`               | Runs                 | Number of runs scored.                                                       |
-| `rbi`             | Runs Batted In       | Number of runs batted in.                                                    |
-| `so`              | Strikeouts           | Number of times the batter struck out.                                       |
-| `double`          | Doubles              | Number of doubles hit.                                                       |
-| `triple`          | Triples              | Number of triples hit.                                                       |
-| `hr`              | Home Runs            | Number of home runs hit.                                                     |
-| `sb`              | Stolen Bases         | Number of bases stolen during the game.                                      |
-:::
-
-
-::: {.callout-note collapse=true title="previews"}
-This table stores pre-game matchup context, such as historical batter-vs-pitcher performance, scraped from MLB.com preview pages. (Selenium)
-
-| **Variable**      | **Name**           | **Description**                                                             |
-|-------------------|--------------------|-----------------------------------------------------------------------------|
-| `game_date`       | Game Date          | Date of the game.                                                           |
-| `batter_name`     | Batter Name        | Name of the batter (no ID available in this table).                         |
-| `pitcher_name`    | Pitcher Name       | Name of the opposing pitcher.                                               |
-| `hr`              | Home Runs          | Total number of home runs prior to the game against the projected pitcher.                                |
-| `rbi`             | Runs Batted In     | Total number of RBIs prior to the game against the projected pitcher.                                     |
-| `ab`              | At-Bats            | Number of official at-bats prior to the game against the projected pitcher.                               |
-| `avg`             | Batting Average    | Batting average prior to the game against the projected pitcher.                                          |
-| `ops`             | On-Base Plus Slugging | OPS (OBP + SLG) prior to the game against the projected pitcher.                                        |
-:::
-
-
-::: {.callout-note collapse=true title="players"}
-This table contains player metadata, including full names and unique identifiers used to join across tables. (statsapi)
-
-| **Variable**      | **Name**       | **Description**                          |
-|-------------------|----------------|------------------------------------------|
-| `player_id`       | Player ID      | Unique identifier for the player.        |
-| `player_name`     | Player Name    | Full name of the player.                 |
-| `bats`     | Bats    | Which side they hit from (Left or Right).               |
-| `throws`     | Throws    | Which side they pitch from (Left or Right).              |
-| `birth_date`     | Birth Date    | Day player was born.                |
-:::
-
-
-::: {.callout-note collapse=true title="sides"}
-This table maps each team to its role in a given game (home or away), used to differentiate sides during analysis. (statsapi)
-
-| **Variable**      | **Name**       | **Description**                                              |
-|-------------------|----------------|--------------------------------------------------------------|
-| `game_id`         | Game ID        | Identifier for the game.                                     |
-| `team_id`         | Team ID        | Identifier for the team.                                     |
-| `side`            | Side           | Side of the team in the game (`home` or `away`).             |
-:::
-
-
-::: {.callout-note collapse=true title="teams"}
-This table contains metadata about each team, including their unique identifier and full name. (statsapi)
-
-| **Variable**      | **Name**       | **Description**                          |
-|-------------------|----------------|------------------------------------------|
-| `team_id`         | Team ID        | Unique identifier for the team.          |
-| `team_name`       | Team Name      | Full name of the team.                   |
-:::
-
-
-::: {.callout-note collapse=true title="games"}
-This table holds game-level information such as date and final scores for both home and away teams. (statsapi)
-
-| **Variable**      | **Name**           | **Description**                                                |
-|-------------------|--------------------|----------------------------------------------------------------|
-| `game_id`         | Game ID            | Unique identifier for the game.                                |
-| `date`            | Date               | Date the game was played.                                      |
-| `home_team_id`    | Home Team ID       | Identifier for the home team.                                  |
-| `home_score`      | Home Team Score    | Final score of the home team.                                  |
-| `away_team_id`    | Away Team ID       | Identifier for the away team.                                  |
-| `away_score`      | Away Team Score    | Final score of the away team.                                  |
-:::
-
-
-::: {.callout-note collapse="true" title="pitches"}
-This table contains pitch-level Statcast data used for machine learning feature engineering, derived from individual pitch outcomes. (pybaseball)
-
-| **Variable**    | **Name**               | **Description**                                                     |
-|----------------|----------------|----------------------------------------|
-| `game_id`       | Game ID                | Unique identifier for games table.                                 |
-| `batter_id`     | Batter ID              | Unique identifier for batters. |
-| `pitcher_id`    | Pitcher ID             | Unique identifier for pitchers.               |
-| `events`        | Pitch Outcome          | Result of the plate appearance (single, home_run, strikeout, etc.). |
-| `launch_speed`  | Exit Velocity          | Speed of batted ball off the bat in mph.                            |
-| `launch_angle`  | Launch Angle           | Vertical angle of batted ball trajectory in degrees.                |
-| `release_speed` | Pitch Velocity         | Speed of pitch when released in mph.                                |
-| `pitch_type`    | Pitch Type Code        | Abbreviated pitch type (FF=four-seam fastball, SL=slider, etc.).    |
-| `woba_value`    | Weighted On-Base Value | Run value assigned to the specific pitch outcome.                   |
-:::
-
-::: {.callout-note collapse=true title="pitcher_stats"}
-This table contains game-level performance stats for each pitcher, including innings pitched, runs allowed, and ERA. (statsapi)
-
-| **Variable**      | **Name**           | **Description**                                                  |
-|-------------------|--------------------|------------------------------------------------------------------|
-| `game_id`         | Game ID            | Unique identifier for the game.                                  |
-| `pitcher_id`      | Pitcher ID         | Unique identifier for the pitcher.                               |
-| `team_id`         | Team ID            | Identifier for the team the pitcher played for.                  |
-| `type`            | Pitcher Type       | Type of pitcher (e.g., starter, reliever).                       |
-| `ip`              | Innings Pitched    | Total number of innings pitched in the game.                     |
-| `h`               | Hits Allowed       | Total hits allowed.                                              |
-| `r`               | Runs Allowed       | Total runs allowed.                                              |
-| `er`              | Earned Runs        | Number of earned runs allowed.                                   |
-| `bb`              | Walks              | Number of walks issued.                                          |
-| `so`              | Strikeouts         | Number of batters struck out.                                    |
-| `hr`              | Home Runs Allowed  | Number of home runs allowed.                                     |
-| `pitches`         | Pitches Thrown     | Total number of pitches thrown.                                  |
-| `strikes`         | Strikes Thrown     | Number of strikes thrown.                                        |
-| `era`             | Earned Run Average | ERA for the game.                                                |
-:::
-
-
-::: {.callout-note collapse=true title="pitcher_statcast"}
-This table includes Statcast-derived advanced metrics for pitchers, highlighting differences between actual and expected outcomes like ERA, BA, SLG, and wOBA. (Baseball Savant)
-
-| **Variable**      | **Name**             | **Description**                                                             |
-|-------------------|----------------------|-----------------------------------------------------------------------------|
-| `pitcher_id`      | Pitcher ID           | Unique identifier for the pitcher.                                         |
-| `pa`              | Plate Appearances    | Number of completed batting appearances against the pitcher.               |
-| `bip`             | Balls In Play        | Number of batted balls put into play against pitcher.                                      |
-| `ba`              | Batting Average      | Batting average against the pitcher.                                       |
-| `x_ba`            | Expected BA          | Expected batting average based on batted ball data.                        |
-| `diff_ba`         | BA - xBA             | Difference between actual and expected batting average.                    |
-| `slg`             | Slugging Percentage  | Slugging percentage against the pitcher.                                   |
-| `x_slg`           | Expected SLG         | Expected slugging based on contact quality.                                |
-| `diff_slg`        | SLG - xSLG           | Difference between actual and expected slugging.                           |
-| `woba`            | Weighted On-Base Avg | Weighted on-base average against the pitcher.                              |
-| `x_woba`          | Expected wOBA        | Predicted wOBA using Statcast data.                                        |
-| `diff_woba`       | wOBA - xwOBA         | Difference between actual and expected wOBA.                               |
-| `era`             | ERA                  | Earned run average.                                                        |
-| `x_era`           | Expected ERA         | Expected ERA based on contact and strikeout/walk profile.                  |
-| `diff_era`        | ERA - xERA           | Difference between actual and expected ERA.                                |
-:::
-
-
-::: {.callout-note collapse=true title="pitcher_pitches"}
-This table contains pitch-type-level metrics for pitchers, including run value, whiff rate, usage rate, and contact quality outcomes. (Baseball Savant)
-
-| **Variable**      | **Name**                  | **Description**                                                             |
-|-------------------|---------------------------|-----------------------------------------------------------------------------|
-| `pitcher_id`      | Pitcher ID                | Unique identifier for the pitcher.                                         |
-| `pitch_name`      | Pitch Type                | Name of the pitch (e.g., fastball, slider).                                |
-| `rv_100`          | Run Value / 100 Pitches   | Average run value per 100 pitches thrown.                                  |
-| `rv`              | Run Value                 | Total run value assigned to the pitch.                                     |
-| `pitches`         | Pitches Thrown            | Number of times this pitch type was thrown.                                |
-| `pitch_usage`     | Pitch Usage               | Percentage of time this pitch type is used.                                |
-| `pa`              | Plate Appearances         | Total plate appearances ending with this pitch type.                       |
-| `ba`              | Batting Average           | Batting average against this pitch.                                        |
-| `x_ba`            | Expected BA               | Expected batting average against this pitch.                               |
-| `slg`             | Slugging Percentage       | Slugging percentage against this pitch.                                    |
-| `x_slg`           | Expected SLG              | Expected slugging against this pitch.                                      |
-| `woba`            | Weighted On-Base Average  | wOBA against this pitch.                                                   |
-| `x_woba`          | Expected wOBA             | Expected wOBA against this pitch.                                          |
-| `whiff_percent`   | Whiff Percentage          | Percent of swings against this pitch that missed.                          |
-| `k_percent`       | Strikeout Percentage      | Percent of plate appearances ending in strikeouts on this pitch.           |
-| `put_away`        | Put Away Percentage       | Percent of 2-strike counts resulting in strikeouts with this pitch.        |
-| `hard_hit`        | Hard Hit Percentage       | Percent of batted balls hit 95+ mph off this pitch.                        |
-:::
-
-
-::: {.callout-note collapse="true" title="betting_events"}
-This table links betting markets to scheduled or completed games. (oddsapi)
-
-| **Variable**     | **Name**        | **Description**                                        |
-|------------------|-----------------|--------------------------------------------------------|
-| `event_id`       | Event ID        | Unique identifier for each betting event.              |
-| `commence_date`  | Start Time      | Scheduled start date of the game.                      |
-| `home_team`      | Home Team       | Name of the home team.                         |
-| `away_team`      | Away Team       | Name of the away team.                         |
-| `completed`      | Completed Flag  | Boolean indicating whether the event has finished.     |
-:::
-
-
-::: {.callout-note collapse="true" title="player_props"}
-This table represents the planned betting market integration, designed to support model validation and value identification once populated with historical odds data. (oddsapi)
-
-| **Variable**    | **Name**        | **Description**                                        |
-|----------------|----------------|----------------------------------------|
-| `prop_id`       | Prop ID         | Primary key for individual prop bet offerings.         |
-| `event_id`      | Event ID        | Links to specific games through events table.          |
-| `bookmaker_key` | Sportsbook      | Identifier for which bookmaker offered the odds.       |
-| `market_type`   | Bet Type        | Type of prop bet (hits, total_bases, home_runs, etc.). |
-| `player_name`   | Player Name     | Name of player for the prop bet.                       |
-| `price`         | Betting Odds    | Decimal odds offered by bookmaker.                     |
-| `point`         | Over/Under Line | Threshold value for over/under bets (0.5, 1.5, etc.).  |
-| `last_update`         | Last Update | Time at which the prop was last updated.  |
-:::
-
-
-::: {.callout-note collapse="true" title="bookmakers"}
-This lookup table provides sportsbook identifiers used in the player_props table.
-
-| **Variable**      | **Name**         | **Description**                                        |
-|-------------------|------------------|--------------------------------------------------------|
-| `bookmaker_key`   | Sportsbook Key   | Unique identifier for the bookmaker (e.g., `draftkings`). |
-| `title`           | Sportsbook Name  | Display name of the sportsbook (e.g., “DraftKings”, "FanDuel", etc.).   |
-:::
+[See Data Dictionary](#data-dictionary)
