@@ -3,11 +3,11 @@
 ## Over/Under Run Scoring Analysis
 Our initial analysis focused on identifying which variables were most predictive of how many runs a team scores in a given game. We used a wide range of features grouped into three main categories:
 
-Opposing starting pitcher (sp.) statistics, including metrics such as earned run average (ERA), opponent batting average (BA), innings pitched (IP), and expected stats like xERA and xBA.
+- **Opposing starting pitcher (sp.)**: Including metrics such as earned run average (ERA), opponent batting average (BA), innings pitched (IP), and expected stats like xERA and xBA.
 
-Opposing relief pitcher statistics (rp.), which represent aggregated bullpen performance using the same types of measures as for starters, such as ERA and slugging percentage (SLG) allowed.
+- **Opposing relief pitcher statistics (rp.)**: Represented aggregated bullpen performance using the same types of measures as for starters, such as ERA and slugging percentage (SLG) allowed.
 
-Team batter statistics (b.), covering both per-game aggregates (e.g., total hits, home runs, strikeouts) and season-long averages for the lineup, such as batting average (BA) and slugging percentage (SLG).
+-- **Team batter statistics (b.)**: Covered both per-game aggregates (e.g., total hits, home runs, strikeouts) and season-long averages for the lineup, such as batting average (BA) and slugging percentage (SLG).
 
 By integrating data from opposing starting pitchers, opposing relievers, and the team’s offensive performance, we aimed to construct a well-rounded model for predicting team run performance.
 
@@ -17,80 +17,86 @@ To gain insight into team scoring behavior, we computed summary statistics for r
 
 <figure id="fig-run_dist">
   <img src="images/run_dist.png" alt="Run Distribution" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 2: Team-level distribution of runs scored per game over the specified time period
+  <figcaption style="font-size: 10px; color: #555;">
+    **Figure 2**: The distribution of runs scored per game across all teams from June 21 to the present is right-skewed, with most teams scoring between 3 and 7 runs. Extreme high-scoring games (10+ runs) are relatively rare, while shutouts and 1-run games are pretty common.
   </figcaption>
 </figure>
 
 The distribution of runs scored per game, as seen in <a href="#fig-run_dist">Figure 2</a>, was right-skewed, with a few high-scoring outliers pulling the mean upward. The median was 4 runs, while the mean was slightly higher at 4.6, reflecting the impact of those outliers. This mean value serves as a useful benchmark when modeling run production in machine learning, especially when deciding how to frame our prediction target.
 
-We then focused on identifying which features were most indicative of how many runs a team scores in a game. To do this, we built a linear regression model using a wide range of pitching and hitting statistics. However,  many baseball metrics are inherently correlated, for example, batting average contributes heavily to a weighted on base average (wOBA). Thus, we encountered significant multicollinearity. To address this, we systematically filtered out redundant variables, prioritizing those that captured unique predictive value. After this reduction process, we finalized a simplified linear model using the following variables:
-<abbr title="Starting Pitcher's Earned Run Average – the average number of earned runs a starting pitcher allows per nine innings pitched." style="color: #1f77b4;">sp_era</abbr>, 
-<abbr title="Starting Pitcher's Batting Average Against – the average number of hits allowed per at-bat by the starting pitcher." style="color: #1f77b4;" >sp_ba</abbr>, 
-<abbr title="Starting Pitcher's Slugging Percentage Against – the average total bases allowed per at-bat by the starting pitcher." style="color: #1f77b4;">sp_slg</abbr>, 
-<abbr title="Relief Pitcher's Earned Run Average – the average number of earned runs a relief pitcher allows per nine innings pitched." style="color: #1f77b4;">rp_era</abbr>, 
-<abbr title="Relief Pitcher's Slugging Percentage Against – the average total bases allowed per at-bat by the relief pitcher." style="color: #1f77b4;">rp_slg</abbr>, 
-<abbr title="Relief Pitcher's Innings Pitched – the total number of innings completed by a relief pitcher for a specified game." style="color: #1f77b4;">rp_ip</abbr>, 
-<abbr title="The mean batting average of all batters expected to appear in the lineup for a given game." style="color: #1f77b4;" >b_ba</abbr>, 
-<abbr title="Total number of strikeouts by the team's batters in the specified game." style="color: #1f77b4;">b_sum_so</abbr>, and
-<abbr title="The mean slugging percentage of all batters expected to appear in the lineup for a given game, measures power-hitting ability." style="color: #1f77b4;">b_slg</abbr>.
+We then focused on identifying which features were most indicative of how many runs a team scores in a game. To do this, we built a linear regression model using a wide range of pitching and hitting statistics. However, many baseball statistics are derived from overlapping components, making them inherently correlated. For example, batting average is one of several inputs used to calculate weighted on-base average (wOBA), meaning these two variables are mathematically linked. As a result, including both in a predictive model can introduce multicollinearity, where highly correlated inputs distort the model’s ability to accurately estimate the unique contribution of each feature. To address this, we systematically filtered out redundant variables, prioritizing those that captured unique predictive value. After this reduction process, we finalized a simplified linear model using the following variables:
+starting pitcher earned run average (`sp_era`), starting pitcher batting average against (`sp_ba`), starting pitcher slugging percentage against (`sp_slg`), relief pitcher earned run average (`rp_era`), relief pitcher slugging percentage against (`rp_slg`), relief pitcher innings pitched (`rp_ip`), team batting average (`b_ba`), total team strikeouts (`b_sum_so`), and team slugging percentage (`b_slg`).
 
+| Predictor | Estimate | Std. Error | t value | Pr(>|t|) |
+|--------------|--------------|----------------|-------------|--------------|
+| (Intercept) | 6.538 | 2.377 | 2.751 | 0.0061 ** |
+| sp_era | -0.135 | 0.130 | -1.042 | 0.2980 |
+| sp_ba | 4.744 | 6.150 | 0.771 | 0.4408 |
+| sp_slg | -4.021 | 3.252 | -1.236 | 0.2168 |
+| rp_era | -0.220 | 0.095 | -2.323 | 0.0205 * |
+| rp_slg | 3.594 | 2.329 | 1.543 | 0.1232 |
+| rp_ip | 0.224 | 0.089 | 2.527 | 0.0117 * |
+| b_ba | 26.823 | 11.862 | 2.261 | 0.0241 * |
+| b_sum_so | 0.050 | 0.045 | 1.130 | 0.2589 |
+| b_slg | 9.894 | 5.692 | 1.738 | 0.0826 . |
 
-From our linear model, we identified three statistically significant predictors of runs scored:
+<figure id="tab-var">
+  <figcaption style="font-size: 10px; color: #555;">
+    **Table 1**: Coefficient estimates from a linear regression model predicting team runs scored. The model includes variables related to starting and relief pitcher performance (e.g., ERA, innings pitched, opponent batting metrics), as well as team-level offensive statistics such as batting average, slugging percentage, and total strikeouts. Each coefficient reflects the estimated change in runs scored associated with a one-unit increase in the corresponding predictor, holding all other variables constant. Statistically significant predictors (p < 0.05) are marked with an asterisk (*), indicating a meaningful relationship with run production.
+  </figcaption>
+</figure>
 
-- Relief pitcher ERA (rp_era), with a p-value of 0.047
+From our linear model, we identified three statistically significant predictors of runs scored (p < 0.05):
 
-- Relief pitcher innings pitched (rp_ip), with a p-value of 0.001
+- Relief pitcher innings pitched (`rp_ip`), with a p-value of 0.0117
 
-- Team batting average (b_ba), with a p-value of 0.011.
+- Relief pitcher ERA (`rp_era`), with a p-value of 0.0205
+
+- Team batting average (`b_ba`), with a p-value of 0.0241
 
 Batting average stood out as something worth exploring further, especially as the season progresses, since we also have data on expected batting average (xBA) available.  
 
 ### Actual vs. Expected Batting Average
-The law of averages suggest that after a large number of trials, outcomes tend to converge toward their expected value. While not a guarantee, this principle would imply that a teams collective batting average should align more closely with their expected batting average as the season progresses.
+The law of averages suggest that after a large number of trials, outcomes tend to stabilize and move closer to their long-run tendencies. In the context of baseball, this implies that a team’s observed batting average may begin to reflect their underlying hitting ability over time. While not a mathematical guarantee, this principle provides context for using modeled statistics. Model-derived metrics are not a true statistical expectation, but it does serve as a useful benchmark for identifying under- or over-performance across the season.
 
-Expected batting average is a Statcast metric designed to estimate the likelihood that a batted ball will result in a hit. It is based on two key factors: exit velocity (how hard the ball is hit) and the launch angle (the angle at which the ball hits off the bat). Baseball is an incredibly difficult sport, and surface-level stats don’t always tell the full story. That is where expected statistics come in-- they often provide a more accurate picture of a player’s performance. For example, a hitter might crush a ball at 115 MPH, but if it’s hit directly at a defender, it results in an out. On the other hand, a softly hit ball at just 40 MPH could drop into the perfect spot for a hit. xBA accounts for these inconsistencies by using historical data to estimate how often similar batted balls have gone for hits. While not perfect, it offers a more context-aware view of hitting performance.
+Expected batting average is a Statcast metric designed to estimate the likelihood that a batted ball will result in a hit, which refers to any batted ball that results in the batter safely reaching at least first base without the benefit of an error. The metric is based on two key factors: exit velocity (how hard the ball is hit) and the launch angle (the vertical angle, in degrees, at which the ball leaves the bat relative to the ground). Baseball results can be unpredictable and are influenced by baseball alignments. As a result, traditional stats do not always measure how well a player is actually performing. That is where expected statistics come in-- through data they provide a more accurate picture of a player’s performance. For example, a hitter might crush a ball at 115 MPH, but if it’s hit directly at a defender, it results in an out. On the other hand, a softly hit ball at just 40 MPH could drop into the perfect spot for a hit. xBA accounts for these inconsistencies by using historical data to estimate how often similar batted balls have gone for hits. While not perfect, it offers a more context-aware view of hitting performance. The following graph, (<a href="#fig-ba">Figure 3</a>), compares each team’s actual batting average to their xBA, helping us see who has been overperforming or underperforming based on quality of contact.
 
 <figure id="fig-ba">
   <img src="images/ba.png" alt="Batting Average" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 3: Visualizing whether teams underperforming and overperforming their respective expected batting average metric.
+  <figcaption style="font-size: 10px; color: #555;">
+    **Figure 3**: Comparison of actual batting average (BA) and expected batting average (xBA) for all MLB teams. Each point represents a team’s seasonal averages. The dashed diagonal line indicates where a team's actual BA equals its xBA-- meaning they are performing as expected based on the quality of their contact. Teams plotted above the line are overperforming their expected average (higher BA than xBA would suggest), while those below the line are underperforming (recording a lower BA than expected).
   </figcaption>
 </figure>
 
-Since we are trying to understand team run production it makes sense to inspect batting average-- a statistic that closely correlates with runs scored. When a team's actual batting average is lower than its expected batting average (xBA), it is indicative of underperformance. Further, we might anticipate that, over time, they will regress upward as outcomes begin to “even out.” In other words, we would expect more batted balls to start falling for hits, raising both their batting average and, ultimately, their run totals.
-
-Conversely, teams currently overperforming their xBA may regress downward, with fewer hits falling in, resulting in fewer runs scored.
-
-Tracking these differences (<a href="#fig-ba">Figure 3</a>) provides valuable insight into which teams may be poised for a shift in offensive production based on their underlying quality of contact. 
+Since we are trying to understand team run production it makes sense to focus on batting average. A higher team batting average means the team is collecting more hits on average, which is essential for generating offense. In baseball, scoring runs typically requires advancing base runners, and hits are one of the primary ways to move players around the bases. The more often players get on base via hits, the more opportunities a team has to bring runners home. While not every hit results in a run, consistent hitting increases the chances of building rallies and ultimately scoring.  When a team’s actual batting average is lower than its expected batting average (xBA), it may suggest underperformance, assuming xBA reasonably reflects the quality of contact. While xBA is not a perfect estimate, it offers a standardized way to evaluate whether a team is hitting into bad luck or failing to convert quality contact into results. Over time, if xBA is a reliable reflection of a team's underlying hitting quality, we would expect actual outcomes to begin aligning with those expectations. Teams underperforming their xBA may see an uptick in batting average, and consequently, run production. Conversely, teams overperforming may experience a decline in their runs as fewer balls in play fewer batted balls result in hits over time. To explore whether these trends actually play out over time, we examined how average run production shifted after MLB's All-Star Break (ASB) as shown in (<a href="#fig-run_diff">Figure 4</a>). 
 
 <figure id="fig-run_diff">
   <img src="images/run_diff.png" alt="Run Differences" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 4: Identifing the teams with the largest increases and decreases in average runs scored following the All-Star Break.
+  <figcaption style="font-size: 10px; color: #555;">
+    **Figure 4**: Identifing the teams with the largest increases and decreases in average runs scored following the All-Star Break.
   </figcaption>
 </figure>
 
-A pattern emerges when comparing team-level batting average (BA) versus expected batting average (xBA) with changes in run production post-All-Star Break. Teams that had been underperforming their xBA, such as CLE, CWS, KC, and HOU are now scoring significantly more runs (<a href="#fig-run_diff">Figure 4</a>), suggesting positive regression. Conversely, overperforming teams like BOS and SEA have seen their run production drop, hinting at regression to the mean. Some teams that showed a noticeable change in scoring also had differences between actual and expected batting averages, though those differences were relatively small. (<a href="#fig-ba2">Figure 5</a>).
+A pattern emerges when comparing team-level batting average (BA) and expected batting average (xBA) to changes in run production after the All-Star Break. Among the largest movers, several teams that had been underperforming their xBA—such as CLE, CWS, KC, and HOU—saw significant increases in runs scored (<a href="#fig-run_diff">Figure 4</a>), consistent with the idea of positive regression. Conversely, some overperforming teams like BOS and SEA experienced declines in run production, aligning with expectations of regression toward the mean. However, the relationship was far from universal-- teams like DET and BAL deviated from the expected pattern. This indicates that while xBA may highlight potential for regression, its predictive power appears strongest for certain teams at the extremes and less reliable across the league as a whole. (<a href="#fig-ba2">Figure 5</a>).
 
-The Rockies appear to be overperforming their expected batting average (xBA), but this is likely a product of Coors Field-- MLB’s most hitter-friendly park. The high altitude and thin air in Denver inflate offensive stats by reducing air resistance and allowing balls to travel farther. This "Coors Field Effect" regularly skews batting metrics, making Colorado’s apparent overperformance more a reflection of park conditions than unsustainable hitting.
+The Colorado Rockies (COL) appear to be overperforming their expected batting average (xBA), but this is likely a product of Coors Field-- MLB’s most hitter-friendly park. The high altitude and thin air in Denver inflate offensive stats by reducing air resistance and allowing balls to travel farther. This "Coors Field Effect" regularly skews batting metrics, making Colorado’s apparent overperformance more a reflection of park conditions than unsustainable hitting. This highlights the importance of considering contextual factors-- such as ballpark effects, strength of schedule, and injuries when interpreting performance metrics. In future work, it would be valuable to explore other factors to add to the depth.  
 
 <figure id = "fig-ba2">
   <img src="images/ba2.png" alt="Batting Average Overlayed" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 5: Linking changes in run production to batting average overperformance and underperformance by teams with the largest differences post All-Star Break.
+  <figcaption style="font-size: 10px; color: #555;">
+    **Figure 5**:  Relationship between changes in average runs scored after the All-Star Break and each team’s degree of overperformance or underperformance relative to their expected batting average (xBA). Green indicates teams whose run production has increased, while red indicates teams whose run production has declined.
   </figcaption>
 </figure>
 
 ## Machine Learning for Over/Unders
-To model over/under outcomes in MLB games, we framed the problem as a binary classification task, predicting whether a team would score over or under 4.5 runs. The 4.5 threshold reflects the historical team average of 4.6 runs, providing a meaningful baseline for classification.
+Following the xBA and run production analysis, we were curious whether setting a clear scoring threshold could reveal additional predictive signals. We framed over/under outcomes in MLB games as a binary classification task-- predicting whether a team would score more or fewer than 4.5 runs. This threshold closely mirrors the historical league average of 4.6 runs, providing a relevant and interpretable baseline for evaluation.
 
 We selected a Random Forest algorithm for our classification model due to its strong performance and interpretability. Random Forests are ensemble models that reduce overfitting by aggregating the results of multiple decision trees, leading to more accurate predictions. Additionally, they offer clear insights into feature importance, allowing us to understand which variables most influence model outcomes.
 
 ### Feature Engineering
-We engineered two key features: <span style="color: #1f77b4;">rolling_runs_5</span> and <span style="color: #1f77b4;">team_rolling_ba_5</span>. The <span style="color: #1f77b4;">rolling_runs_5</span> feature captures the average number of runs a team has scored over its last five games, while <span style="color: #1f77b4;">steam_rolling_ba_5</span> reflects the team’s batting average across the same span. These features provide recent performance context and turned out to be strong predictors in determining whether a team would score over or under 4.5 runs, as illustrated in (<a href="#fig-var">Figure 6</a>).
+We engineered two key features: the average number of runs a team has scored over its last five games (`rolling_runs_5`) and the team’s batting average over the same span `team_rolling_ba_5`. These metrics serve as short-term performance indicators, capturing both a team’s ability to generate runs and its overall hitting effectiveness in recent matchups. By focusing on a five-game window, they provide a timely snapshot of offensive form that can reflect hot streaks, slumps, or the impact of recent roster changes.
 
-Additionally, we also incorporated several existing metrics into our model, including <abbr title="Opponent Starting Pitcher's Expected Batting Average – the projected batting average against a starting pitcher based on quality of contact metrics." style="color: #1f77b4;">sp_x_ba</abbr>, <abbr title="Opponent Starting Pitcher's Earned Run Average – the average number of earned runs a starting pitcher allows per nine innings pitched." style="color: #1f77b4;">sp_era</abbr>, <abbr title="Average Expected Batting Average (xBA) of the starting lineup – the projected batting average based on quality of contact and strikeouts." style="color: #1f77b4;">b_x_ba</abbr>, and <abbr title="Batting Slugging Percentage – total bases divided by at-bats, measuring a hitter's power." style="color: #1f77b4;">b_slg</abbr>.
+Additionally, we incorporated several existing metrics into our model, including the opponent starting pitcher’s expected batting average (sp_x_ba), opponent starting pitcher’s earned run average (sp_era), the starting lineup’s average expected batting average (b_x_ba), and team slugging percentage (b_slg).
 
 ### Model Performance 
 To evaluate the effectiveness of our Random Forest classifier in predicting whether a team would score over or under 4.5 runs, we examined several performance metrics that offer complementary insights into model quality and reliability.
@@ -99,12 +105,12 @@ The Area Under the Receiver Operating Characteristic Curve (AUC) was 0.756, refl
 
 <figure id = "fig-roc">
   <img src="images/roc.png" alt="ROC Graph" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 6: ROC curve for the Random Forest model predicting whether a team scores over 4.5 runs. The curve illustrates the trade-off between sensitivity (true positive rate) and specificity (true negative rate). The model shows strong performance, with the curve rising well above the diagonal line 
+  <figcaption style="font-size: 10px; color: #555;">
+    **Figure 6**: ROC curve for the Random Forest model predicting whether a team scores over 4.5 runs. The curve illustrates the trade-off between sensitivity (true positive rate) and specificity (true negative rate). The model shows strong performance, with the curve rising well above the diagonal line 
   </figcaption>
 </figure>
 
-In addition to AUC, overall accuracy provides a more intuitive sense of model correctness. The model achieved an overall accuracy of 72.5%, correctly predicting the outcome in nearly three-quarters of all games. This far exceeds the No Information Rate of 55.8%, which reflects the accuracy one would achieve by always predicting the majority class (in this case teams scoring under 4.5 runs). The lift over this baseline confirms that the model provides predictive value rather than simply echoing the most common outcome.
+In addition to AUC, overall accuracy provides a more intuitive sense of model correctness. The model achieved an overall accuracy of 72.5%, correctly predicting the outcome in nearly three-quarters of all games. This far exceeds the No Information Rate of 55.8%, which reflects the accuracy one would achieve by always predicting the majority class (in this case teams scoring under 4.5 runs). The substantial lift over this baseline demonstrates that the model is capturing meaningful patterns in the data rather than simply echoing the most frequent outcome. This improvement is particularly noteworthy given the variability of baseball scoring, where small changes in game context, player performance, or even weather conditions can swing results.
 
 We also evaluated sensitivity, which measures how well the model identifies games where a team scored over 4.5 runs. It achieved a rate of 76.6%, meaning that when a team did go over, the model predicted it correctly more than 75% of the time. This level of performance is especially useful in betting contexts, where one would need to predict the over correctly more than 52.4% of the time just to break even. The model’s specificity was 67.2%, indicating that it also performed well at identifying games that went under. 
 
@@ -115,8 +121,8 @@ Together, these results show that our Random Forest model performs well across b
 ### Feature Importance
 <figure id = "fig-var">
   <img src="images/var.png" alt="Important Variables for O/U ML" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 7: This figure illustrates the relative importance of each feature in predicting whether a team will score over 4.5 runs. Higher values indicate greater contribution to the model’s predictive accuracy.
+  <figcaption style="font-size: 10px; color: #555;">
+    **Figure 7**: This figure illustrates the relative importance of each feature in predicting whether a team will score over 4.5 runs. Higher values indicate greater contribution to the model’s predictive accuracy.
   </figcaption>
 </figure>
 
@@ -133,30 +139,31 @@ Overall, the combination of short-term offensive momentum, recent team batting m
 
 
 ## Prop Betting Analysis for Batters
-We then explored hitter-focused prop bets, specifically whether a batter would record at least one hit or exceed two total bases in a given game. Total bases are calculated as follows: a single counts as one, a double as two, a triple as three, and a home run as four. To surpass two total bases, a player could hit a double, triple, home run, or combine multiple hits (e.g., two singles). Any combination totaling more than two qualifies for the over.
+We then explored hitter-focused prop bets, specifically whether a batter would record at least one hit or go over/under 1.5 total bases in a given game. Total bases are calculated as one for a single, two for a double, three for a triple, and four for a home run. To hit the over, a player must total at least two bases-- for example, by hitting a double, triple, home run, or combining multiple hits such as a single and a double.
 
 ### Pitcher-Batter Preview 
 To gain an edge in predicting favorable prop outcomes, we began by analyzing game preview data for each day, including scheduled starting pitchers and historical batter-vs-pitcher matchup statistics. 
 
-The first areas we explored was how specific batters had performed against certain pitchers in the past. In baseball, it is often said that some hitters "have have a pitcher's number," meaning they see a pitcher very well— a phenomenon that may not always be captured by traditional stats. When a batter consistently succeeds against a particular pitcher, it can signal a meaningful matchup advantage. With that in mind, we prioritized these historical trends as a way to identify potentially favorable prop bet opportunities.
+The first areas we explored was how specific batters had performed against certain pitchers in the past. In baseball, it is often said that some hitters "have a pitcher's number," meaning they see a pitcher very well— a phenomenon that may not always be captured by traditional stats. This can stem from a batter's ability to pick up the ball exceptionally well out of a pitcher’s hand or from a strong sense of that pitcher’s tendencies. Thus, when a batter is able to consistently succeed against a particular pitcher, it can signal a meaningful matchup advantage. With that in mind, we prioritized these historical trends as a way to identify potentially favorable prop bet opportunities.
 
-Next, we analyzed discrepancies in run value per 100 pitches (RV/100) to identify potential mismatches between pitchers and hitters. Specifically, we calculated the difference in RV/100 by comparing a batter’s performance against specific pitch types to the different pitches thrown by the scheduled opposing pitcher. This allowed us to estimate how well a batter might match up based on the types of pitches they were likely to face in a given game. In other words, we cross-referenced each batter’s strengths with a pitcher’s weaknesses to uncover matchups where a hitter may be especially well-suited to succeed. To ensure the matchup was meaningful, we also applied a minimum usage threshold, filtering out pitch types that a pitcher rarely throws.
+We analyzed discrepancies in run value per 100 pitches (RV/100)-- a metric measuring how each pitch changes a team’s run expectancy, with positive values favoring hitters and negative values favoring pitcher. This would aid us in identifying potential pitcher-hitter mismatches. This allowed us to identify potential pitcher-hitter mismatches as we calculated the difference in RV/100 by comparing a batter’s performance against specific pitch types to the different pitches thrown by the scheduled opposing pitcher. This allowed us to estimate how well a batter might match up based on the types of pitches they were likely to face in a given game. In other words, we cross-referenced each batter’s strengths with a pitcher’s weaknesses to uncover matchups where a hitter may be especially well-suited to succeed. To ensure the matchup was meaningful, we also applied a minimum usage threshold, filtering out pitch types that a pitcher rarely throws.
 
 #### Interactive Hitter Matchup App
-This dashboard is built to showcase the most advantageous matchups for the games daily.
+We wanted a way to translate our findings into a practical, game-day resource, we developed an interactive dashboard designed to point out the most advantageous hitter macthups for each day's slate of games. The tool identifies situations where a hitter has a statistical edge and allows users to examine supporting statistics, such as matchup histories or run-value differentials. 
 
-The top table displays advantageous batter-pitcher matchup histories, filtered to highlight hitters with the strongest track records. To ensure meaningful results, we included only hitters with a batting average above .250 against the opposing pitcher—indicating they’ve recorded a hit in more than 25% of their past at-bats. Additionally, we required a minimum of four at-bats in the matchup to ensure a more substantial sample size.
+The top table displays advantageous batter-pitcher matchup histories, filtered to highlight hitters with the strongest track records. To ensure meaningful results, we included only hitters with a batting average above .250 against the opposing pitcher-- indicating they have recorded a hit in more than 25% of their past at-bats. Additionally, we required a minimum of four at-bats in the matchup to ensure a more substantial sample size.
 
 The table below highlights batters with a significant advantage based on run value against specific pitch types. It is sorted from highest to lowest run value difference, showcasing hitters who are most likely to succeed against the opposing pitcher's arsenal. To qualify for this table, a batter must have a run value differential greater than 2 in their favor. If a batter appears in both this table and the matchup history table above, they are highlighted in yellow-- indicating that both analyses suggest a strong likelihood of success in that day’s game.
 
-Users can sort the dashboard by date, with the default view automatically displaying matchups from the current day’s slate of games. If a previous date is selected, historical matchups and their corresponding results will appear. A color-coded key is provided below the date selector to help interpret the meaning of each highlighted row.
+Users can sort the dashboard by date, with the default view automatically displaying matchupss with supporting stats from selected day’s slate of games. If a previous date is selected, historical matchups and their corresponding results will appear. A color-coded key is provided below the date selector to help interpret the meaning of each highlighted row.
 
-At the bottom of the dashboard is a simulated betting analysis. For players to get a hit,it is typically priced around -200 odds, meaning a $200 wager would win $100. For the purpose of our analysis, we will be assuming a $10 wager per player. A successful bet yields a $5 profit, while a loss forfeits the $10 stake. For total bases (2+), where odds are usually closer to +100, we again simulate $10 wagers. In this case, a win returns $10 in profit, while a loss results in a $10 loss. The dashboard aggregates daily results based on these assumptions and displays the cumulative outcomes for easy tracking.
+At the bottom of the dashboard is a simulated betting analysis. For players to get a hit,it is typically priced around -200 odds, meaning a $200 wager would win $100 in profit. For the purpose of our analysis, we will be assuming a $10 wager per player. A successful bet yields a $5 profit, while a loss forfeits the $10 stake. For total bases (2+), where odds are usually closer to +100, we again simulate $10 wagers. In this case, a win returns $10 in profit, while a loss results in a $10 loss. The dashboard aggregates daily results based on these assumptions and displays the cumulative outcomes for easy tracking.
 
-<div style="text-align: center;">
-  <iframe src="https://60bwvg-jace-higa.shinyapps.io/mlb_betting/" width="100%" height="800px" style="border:none;"></iframe>
+<div style="width: 100vw; margin-left: calc(-50vw + 50%); text-align: center;">
+  <iframe src="https://60bwvg-jace-higa.shinyapps.io/mlb_betting/" 
+          width="100%" height="1000px" style="border:none;"></iframe>
   <p style="margin-top: 8px; font-style: italic; font-size: 0.95em; color: #555;">
-    Figure 8: Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.
+    <strong>Figure 8:</strong> Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.
   </p>
 </div>
 
@@ -202,8 +209,8 @@ The Random Forest model achieved the strongest performance with an average test 
 
 <figure id="fig-model_performance">
   <img src="images/model_performance_comparison_final.png" alt="Model Performance Comparison" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 9: Model performance comparison across MLB player prop targets. Left panel shows all algorithms clustering near the academic baseline (Elfrink 2018), demonstrating realistic performance expectations for sports betting applications. Right panel validates absence of overfitting through strong validation-test agreement along the diagonal.
+  <figcaption style="font-size: 10px; color: #555;">
+    **Figure 9**: Model performance comparison across MLB player prop targets. Left panel shows all algorithms clustering near the academic baseline (Elfrink 2018), demonstrating realistic performance expectations for sports betting applications. Right panel validates absence of overfitting through strong validation-test agreement along the diagonal.
   </figcaption>
 </figure>
 
@@ -217,8 +224,8 @@ Analysis of feature importance revealed that seasonal performance metrics provid
 
 <figure id="fig-feature_importance">
   <img src="images/feature_importance.png" alt="Feature Importance Analysis" width="800">
-  <figcaption style="font-size: 8px; color: #555;">
-    Figure 10: Feature importance analysis aggregated across all models and targets, demonstrating the dominance of legitimate pre-game predictors. Seasonal statistics (blue) and historical rates (orange) provide the strongest predictive signal, while the complete absence of same-game features confirms successful data leakage prevention.
+  <figcaption style="font-size: 10px; color: #555;">
+    **Figure 10**: Feature importance analysis aggregated across all models and targets, demonstrating the dominance of legitimate pre-game predictors. Seasonal statistics (blue) and historical rates (orange) provide the strongest predictive signal, while the complete absence of same-game features confirms successful data leakage prevention.
   </figcaption>
 </figure>
 

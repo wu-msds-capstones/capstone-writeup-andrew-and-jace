@@ -259,6 +259,6 @@ This lookup table provides sportsbook identifiers used in the player_props table
 
 | **Variable**      | **Name**         | **Description**                                        |
 |-------------------|------------------|--------------------------------------------------------|
-| `bookmaker_key`   | Sportsbook Key   | Unique identifier for the bookmaker (e.g., `draftkings`). |
+| `bookmaker_key`   | Sportsbook Key   | Unique identifier for the bookmaker |
 | `title`           | Sportsbook Name  | Display name of the sportsbook (e.g., “DraftKings”, "FanDuel", etc.).   |
 :::
