@@ -51,3 +51,24 @@ Our investigation seeks to address the identified research gap by developing and
 This methodological integration represents a novel contribution to sports betting literature, treating predictive modeling and market analysis as complementary information sources within a unified expected value maximization framework. By combining fundamental performance analysis with market intelligence, we aim to determine whether hybrid approaches can achieve superior risk-adjusted returns while addressing the practical implementation challenges that often limit the real-world applicability of theoretical betting strategies.
 
 The investigation employs rigorous statistical validation methodologies and addresses sustainability concerns often overlooked in academic literature, providing insights into both the theoretical potential and practical limitations of data-driven sports betting approaches in modern day market environments.
+
+
+## Ethical Considerations
+
+### Data Privacy and Sources
+
+The data utilized in this research consists entirely of publicly available information from professional baseball games, including Statcast measurements, player performance statistics, and sportsbook pricing data from both regulated and offshore operators. No personally identifiable information beyond public player names and performance metrics was collected. All data represents factual, objective measures that are routinely published within the sports analytics community.
+
+### Responsible Gambling Considerations
+
+The primary ethical consideration in this research concerns its potential application to sports betting activities. Several critical limitations and risks must be emphasized:
+
+**No Guaranteed Profits**: Even when positive expected value opportunities are identified, variance inherent in probabilistic outcomes means that substantial losses remain possible over both short and extended periods. Historical performance does not guarantee future results.
+
+**Variance and Risk Management**: The high variance of sports betting means that even systematically profitable approaches can experience extended losing streaks that individuals may not be able to endure. Anyone considering application of these findings must thoroughly understand proper bankroll management principles and position sizing (deciding how much money to bet on each wager) strategies. 
+
+**Problem Gambling Risks**: Sports betting can lead to significant financial harm and may negatively affect mental health. We strongly advise anyone considering wagering to seek education on responsible gambling practices and never risk money they cannot afford to lose. Betting should be approached cautiously and within personal limits.
+
+**Market Evolution**: Betting markets continuously evolve as operators adjust to new information. Any identified inefficiencies may diminish as markets adapt, potentially rendering historical findings obsolete.
+
+**Disclaimer**: This research is conducted for academic purposes only. Any application of these findings to actual betting activities is undertaken entirely at the user's own risk. The authors accept no responsibility for financial losses that may result from application of this research. Readers are strongly encouraged to thoroughly research proper bankroll management techniques and to seek professional guidance on responsible gambling practices before placing any wagers.

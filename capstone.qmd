@@ -1,6 +1,6 @@
 ---
-title: "MLB Betting Analysis"
-subtitle: Pitch, Hit, Profit - A Data-Backed Approach to Projecting Favorable Outcomes in MLB Betting
+title: "Pitch, Hit, Profit"
+subtitle: A Data-Backed Approach to Projecting Favorable Outcomes in MLB Betting
 authors:
   - Andrew Cerqui 
   - Jace Higa

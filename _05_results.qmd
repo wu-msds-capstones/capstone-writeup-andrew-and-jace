@@ -73,7 +73,7 @@ Since we are trying to understand team run production it makes sense to focus on
 <figure id="fig-run_diff">
   <img src="images/run_diff.png" alt="Run Differences" width="800">
   <figcaption style="font-size: 10px; color: #555;">
-    **Figure 4**: Identifing the teams with the largest increases and decreases in average runs scored following the All-Star Break.
+    **Figure 4**: Change in average runs scored per game for MLB teams after the 2024 All-Star Break (ASB) compared to before the break. Positive values (green bars) indicate teams that increased their run production, with the Chicago White Sox (+5.15) showing the largest improvement. Negative values (red bars) indicate teams that scored fewer runs on average after the break, with the Boston Red Sox (-4.33) experiencing the steepest decline. The figure highlights the five teams with the largest increases and decreases, illustrating which offenses surged or struggled to start the second half of the season.
   </figcaption>
 </figure>
 
@@ -151,16 +151,16 @@ We analyzed discrepancies in run value per 100 pitches (RV/100)-- a metric measu
 #### Interactive Hitter Matchup App
 We wanted a way to translate our findings into a practical, game-day resource, we developed an interactive dashboard designed to point out the most advantageous hitter macthups for each day's slate of games. The tool identifies situations where a hitter has a statistical edge and allows users to examine supporting statistics, such as matchup histories or run-value differentials. 
 
-The top table displays advantageous batter-pitcher matchup histories, filtered to highlight hitters with the strongest track records. To ensure meaningful results, we included only hitters with a batting average above .250 against the opposing pitcher-- indicating they have recorded a hit in more than 25% of their past at-bats. Additionally, we required a minimum of four at-bats in the matchup to ensure a more substantial sample size.
+The top table displays advantageous batter–pitcher matchup histories, filtered to highlight hitters with the strongest track records. We included only hitters with a batting average of .300 or higher against the opposing pitcher-- a mark generally considered very good in baseball, indicating the hitter records a hit in at least 30% of their past at-bats. To ensure meaningful results, we also required a minimum of four at-bats in the matchup to provide a more reliable sample size.
 
-The table below highlights batters with a significant advantage based on run value against specific pitch types. It is sorted from highest to lowest run value difference, showcasing hitters who are most likely to succeed against the opposing pitcher's arsenal. To qualify for this table, a batter must have a run value differential greater than 2 in their favor. If a batter appears in both this table and the matchup history table above, they are highlighted in yellow-- indicating that both analyses suggest a strong likelihood of success in that day’s game.
+The table below highlights batters with a significant advantage based on run value against specific pitch types. It is sorted from highest to lowest run value difference, showcasing hitters who are most likely to succeed against the opposing pitcher's arsenal. To qualify for this table, a batter must have a run value differential of at least 2.5 in their favor. If a batter appears in both this table and the matchup history table above, they are highlighted in yellow-- indicating that both analyses suggest a strong likelihood of success in that day’s game.
 
 Users can sort the dashboard by date, with the default view automatically displaying matchupss with supporting stats from selected day’s slate of games. If a previous date is selected, historical matchups and their corresponding results will appear. A color-coded key is provided below the date selector to help interpret the meaning of each highlighted row.
 
 At the bottom of the dashboard is a simulated betting analysis. For players to get a hit,it is typically priced around -200 odds, meaning a $200 wager would win $100 in profit. For the purpose of our analysis, we will be assuming a $10 wager per player. A successful bet yields a $5 profit, while a loss forfeits the $10 stake. For total bases (2+), where odds are usually closer to +100, we again simulate $10 wagers. In this case, a win returns $10 in profit, while a loss results in a $10 loss. The dashboard aggregates daily results based on these assumptions and displays the cumulative outcomes for easy tracking.
 
 <div style="width: 100vw; margin-left: calc(-50vw + 50%); text-align: center;">
-  <iframe src="https://60bwvg-jace-higa.shinyapps.io/mlb_betting/" 
+  <iframe src="https://60bwvg-jace-higa.shinyapps.io/best_hitter_matchups/" 
           width="100%" height="1000px" style="border:none;"></iframe>
   <p style="margin-top: 8px; font-style: italic; font-size: 0.95em; color: #555;">
     <strong>Figure 8:</strong> Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.

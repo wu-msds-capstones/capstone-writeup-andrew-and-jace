@@ -1,22 +1,26 @@
 # Conclusions
 
 ## Key Findings
+The following findings summarize the most important insights from our analyses. They are organized into two categories-- Over/Under Runs Bets and Prop Bets to distinguish between team-level and player-level perspectives.
 
 ### Over/Under Runs Bets
-- **Bullpen performance is a key driver of scoring**: Relief pitcher stats, particularly ERA and innings pitched, were strong predictors of team run totals, often more so than starter metrics. This is intuitive: when a starting pitcher struggles, they're removed early, forcing greater reliance on the bullpen. This creates opportunities to exploit bullpen fatigue or depth mismatches. In future work, incorporating contextual bullpen data—such as relievers' recent usage or rest days—could enhance predictive power.
+The first key finding is that bullpen performance is a major driver of scoring, with relief pitcher metrics—particularly ERA and innings pitched—proving to be strong predictors of team run totals, often surpassing the predictive value of starter statistics. This is intuitive: when a starting pitcher struggles, they are removed early, increasing reliance on the bullpen and creating opportunities to exploit fatigue or depth mismatches. In future work, incorporating contextual bullpen data—such as relievers’ recent usage or rest days—could further enhance predictive power.
 
-- **Expected stats signal potential shifts**: Gaps between actual and expected batting average (xBA) can correspond with changes in team scoring, indicating both positive and negative regression toward underlying performance levels.
+Next, we found that expected statistics can signal potential shifts in scoring. Differences between a team’s actual batting average and its expected batting average (xBA) often serve as early indicators of offensive changes. Teams outperforming their xBA may be benefiting from favorable luck or other unsustainable factors, suggesting a potential decline in future production. Conversely, teams underperforming their xBA may be making quality contact without seeing results, indicating a likely increase in their amount of hits in the future and thus run production as performance normalizes. However, these signals should always be considered in context, accounting for factors such as ballpark effects, strength of schedule, and injuries. Tracking these gaps offers a valuable tool for anticipating both upward and downward scoring trends.
+
+Lastly, recent team performance emerged as a significant factor when evaluating the over/under metric. In particular, trends in run production and hit totals over the last five games provide valuable context for predicting future scoring outcomes. A team averaging a high number of runs and hits in this short span may be in the midst of an offensive surge, benefiting from hot hitters, favorable matchups, or advantageous ballpark conditions. Conversely, a recent slump in both categories can signal an offense struggling to generate and capitalize on consistent scoring opportunities. Incorporating these short-term trends alongside season-long metrics allows for a more context-driven assessment of a team’s current scoring potential.
 
 
 ### Prop Bets
-- **Still finalizing preview history and run value metrics. For now, here’s how the scoring works**:
+In our prop bet analysis, we examined two key outcomes: whether a player would record at least one hit and whether they would surpass 1.5 total bases. To approach this from multiple angles, we combined domain knowledge with statistical modeling-- evaluating matchup history as a potential predictor while also incorporating run value, a more advanced metric of offensive contribution. The findings from these analyses are outlined below.
 
-- Getting a Hit (H ≥ 1): +40
-This assumes a payout ratio where a successful bet returns 4x your original stake.
+- **Hit Prop Bets**: A $10 wager on every player featured in the dashboard to record at least one hit would have yielded a total profit of $70.
 
-- Getting 2+ Total Bases (TB < 2): –170
-This reflects the steep odds, where missing the mark would cost you 17x your bet.
- We still need to do some tweaking and modifying for this.
+- **Total Bases Prop Bets**: A $10 wager on every player featured in the dashboard to exceed 1.5 total bases would have resulted in a total loss of $120.
+
+The dashboard appeared to predict the hits prop bets reasonably well but was less effective in forecasting the over 1.5 total bases outcome. Incorporating additional context could improve its accuracy. For example, a player’s position in the batting order can be important-- batting first versus ninth significantly impacts the number of plate appearances, with higher spots in the lineup typically guaranteeing more opportunities. Home and away status also matters: an away team is assured nine full innings of offense, while a home team leading after the top of the ninth will not bat in the bottom half, losing a potential at-bat. In betting, every opportunity matters, and maximizing them can improve results.
+
+Ballpark-specific performance is another valuable consideration. Some hitters excel in certain parks due to their dimensions; for instance, Fenway Park’s short distance and tall wall in left field can favor hitters who frequently pull the ball to that side. Conversely, some players may struggle in certain stadiums if background elements make it harder to track pitches. Considering these situational factors, along with player statistics at specific venues, the number of variables we could account for is virtually endless. It ranges from the home plate umpire’s strike zone tendencies to weather conditions such as wind speed, temperature, and humidity-- all of which can influence offensive performance. Factoring in any combination of these elements could further refine and enhance the dashboard’s predictive power in future versions.
 
 
 - **Individual player prop prediction achieves solid academic performance**: Our machine learning models for individual player props achieved 0.549 AUC, closely aligning with the established academic baseline of 0.552 AUC (Elfrink, 2018). This performance demonstrates that meaningful signal exists in player statistics even within efficient prop betting markets, providing a foundation for future model enhancement.
@@ -35,27 +39,3 @@ The hybrid methodology successfully bridges traditional statistical analysis wit
 The solid performance achieved by our models—clustering around established academic baselines—validates market efficiency research suggesting that sustainable edges in professional sports betting are necessarily modest. Rather than claiming exceptional results, our work establishes realistic expectations for legitimate MLB prediction models and provides tools for comprehensive market analysis.
 
 The planned integration of live odds data represents the critical next phase for translating statistical predictions into practical betting applications. By implementing odds shopping across multiple sportsbooks and comparing model probabilities with market prices, future work can test whether identified statistical edges translate to profitable outcomes in real betting scenarios.
-
-## Future Directions
- Future work will focus on enhancing model performance through expanded data integration. Key opportunities include incorporating weather conditions, ballpark factors, lineup position effects, and pitcher-specific matchup data directly into machine learning models. Additionally, developing rolling performance indicators and recent form metrics could capture player momentum and health status more effectively than season-long averages alone. The integration of advanced Statcast metrics, while carefully avoiding data leakage, may provide additional signal for both team and individual player outcomes. Real-time model updating systems that adapt to changing player conditions throughout the season represent another promising avenue for improving prediction accuracy.
-
-
-## Ethical Considerations
-
-### Data Privacy and Sources
-
-The data utilized in this research consists entirely of publicly available information from professional baseball games, including Statcast measurements, player performance statistics, and sportsbook pricing data from both regulated and offshore operators. No personally identifiable information beyond public player names and performance metrics was collected. All data represents factual, objective measures that are routinely published within the sports analytics community.
-
-### Responsible Gambling Considerations
-
-The primary ethical consideration in this research concerns its potential application to sports betting activities. Several critical limitations and risks must be emphasized:
-
-**No Guaranteed Profits**: Even if theoretical positive expected value opportunities are identified, variance inherent in probabilistic outcomes means that substantial losses remain possible over both short and extended periods. Historical performance does not guarantee future results.
-
-**Variance and Risk Management**: The high variance nature of sports betting means that even systematically profitable approaches can experience extended losing streaks that exceed many individuals' financial tolerance. Anyone considering application of these findings must thoroughly understand proper bankroll management principles and position sizing strategies.
-
-**Problem Gambling Risks**: This research is intended solely for academic and educational purposes. We strongly advise that anyone considering wagering activities seek education on responsible gambling practices and never risk money they cannot afford to lose entirely.
-
-**Market Evolution**: Betting markets continuously evolve as operators adjust to new information. Any identified inefficiencies may diminish as markets adapt, potentially rendering historical findings obsolete.
-
-**Disclaimer**: This research is conducted for academic purposes only. Any application of these findings to actual betting activities is undertaken entirely at the user's own risk. The authors accept no responsibility for financial losses that may result from application of this research. Readers are strongly encouraged to thoroughly research proper bankroll management techniques and to seek professional guidance on responsible gambling practices before considering any wagering activities.
