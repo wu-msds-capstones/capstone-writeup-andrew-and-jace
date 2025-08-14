@@ -159,13 +159,19 @@ Users can sort the dashboard by date, with the default view automatically displa
 
 At the bottom of the dashboard is a simulated betting analysis. For players to get a hit,it is typically priced around -200 odds, meaning a $200 wager would win $100 in profit. For the purpose of our analysis, we will be assuming a $10 wager per player. A successful bet yields a $5 profit, while a loss forfeits the $10 stake. For total bases (2+), where odds are usually closer to +100, we again simulate $10 wagers. In this case, a win returns $10 in profit, while a loss results in a $10 loss. The dashboard aggregates daily results based on these assumptions and displays the cumulative outcomes for easy tracking.
 
-<div style="width: 100vw; margin-left: calc(-50vw + 50%); text-align: center;">
-  <iframe src="https://60bwvg-jace-higa.shinyapps.io/best_hitter_matchups/" 
-          width="100%" height="1000px" style="border:none;"></iframe>
-  <p style="margin-top: 8px; font-style: italic; font-size: 0.95em; color: #555;">
+::: {.column-page}
+<div style="text-align:center;">
+  <iframe
+    src="https://60bwvg-jace-higa.shinyapps.io/best_hitter_matchups/"
+    width="100%" height="800" style="border:none; display:block;"
+    title="Best Hitter Matchups" loading="lazy">
+  </iframe>
+  <p style="margin-top:8px; font-style:italic; font-size:0.95em; color:#555;">
     <strong>Figure 8:</strong> Interactive dashboard showing advantageous MLB batter props, with hypothetical results displayed as well.
   </p>
 </div>
+:::
+
 
 
 ## Machine Learning for Individual Player Props
