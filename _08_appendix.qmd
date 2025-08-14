@@ -1,0 +1,264 @@
+# Appendix
+
+The following appendix provides supporting materials that complement the main analysis.
+
+## Data Dictionaries {#data-dictionary}
+::: {.callout-note collapse=true title="batter_pitches"}
+This table contains underlying aggregated statisical data, which will not show up in the typical box score.(Baseball Savant)
+
+| **Variable**      | **Name**                        | **Description**                                                                 |
+|-------------------|----------------------------------|----------------------------------------------------------------------------------|
+| `batter_id`       | Batter ID                       | Unique identifier for the batter.                                               |
+| `pitch_name`      | Pitch Type                      | Name of the pitch type (e.g., fastball, slider).                                |
+| `rv_100`          | Run Value / 100 Pitches         | Average run value per 100 pitches seen. Measures how well batters hit each pitch. |
+| `rv`              | Run Value                       | Total run value assigned to differnt pitches the batter has seen.                 |
+| `pitches`         | Pitches                         | Total number of pitches thrown or seen.                                         |
+| `pitch_usage`     | Pitch Usage                     | Percentage of time a specific pitch type is used.                               |
+| `pa`              | Plate Appearances               | Number of completed batting appearances, including walks and hit-by-pitches.   |
+| `ba`              | Batting Average                 | Hits divided by at-bats.                                                        |
+| `x_ba`            | Expected Batting Average        | Likelihood a batted ball becomes a hit, based on exit velocity and launch angle.|
+| `slg`             | Slugging Percentage             | Total bases divided by at-bats; measures power.                                 |
+| `x_slg`           | Expected Slugging               | Predicted slugging based on batted ball quality.                                |
+| `woba`            | Weighted On-Base Average        | Gives more weight to extra-base hits than OBP (On Base Percentage).                                  |
+| `x_woba`          | Expected wOBA                   | Predicted wOBA using quality-of-contact data.                                   |
+| `whiff_percent`   | Whiff Percentage                | Percentage of swings that result in misses.                                     |
+| `k_percent`       | Strikeout Percentage            | Strikeouts divided by plate appearances.                                        |
+| `put_away`        | Put Away Percentage             | 2-strike pitches resulting in strikeouts divided by total 2-strike pitches.     |
+| `hard_hit`        | Hard Hit Percentage             | Percentage of batted balls hit at 95+ mph.                                      |
+:::
+
+
+::: {.callout-note collapse=true title="batter_statcast"}
+This table contains aggregated Statcast metrics for batters across different pitch types, including expected and actual performance differentials across batting average, slugging, and wOBA. (Baseball Savant)
+
+| **Variable**      | **Name**                        | **Description**                                                                 |
+|-------------------|----------------------------------|----------------------------------------------------------------------------------|
+| `batter_id`       | Batter ID                       | Unique identifier for the batter.                                                |
+| `season`       | Season                      |  Year in which the statistics are from.                                               |
+| `pa`              | Plate Appearances               | Number of completed batting appearances, including walks and hit-by-pitches.    |
+| `bip`             | Balls In Play                   | Number of batted balls put into play (excluding strikeouts, walks, etc.).        |
+| `ba`              | Batting Average                 | Hits divided by at-bats.                                                         |
+| `x_ba`            | Expected Batting Average        | Likelihood a batted ball becomes a hit, based on exit velocity and launch angle.|
+| `diff_ba`         | BA - xBA                        | Difference between actual and expected batting average.                          |
+| `slg`             | Slugging Percentage             | Total bases divided by at-bats; measures power.                                  |
+| `x_slg`           | Expected Slugging               | Predicted slugging based on batted ball quality.                                 |
+| `diff_slg`        | SLG - xSLG                      | Difference between actual and expected slugging percentage.                      |
+| `woba`            | Weighted On-Base Average        | Gives more weight to extra-base hits than OBP.                                   |
+| `x_woba`          | Expected wOBA                   | Predicted wOBA using quality-of-contact data.                                    |
+| `diff_woba`       | wOBA - xwOBA                    | Difference between actual and expected wOBA.                                     |
+| `batter_id`       | Batter ID                       | Unique identifier for the batter.                                                |
+| `ops`          | OPS            | On-base Plus Slugging — combines on-base % and slugging % to summarize hitter performance. |
+| `wrc_plus`     | wRC+           | Weighted Runs Created Plus — measures a player’s total offensive value, adjusted for park and league. 100 is league average. |
+| `home_runs`    | Home Runs      | Number of home runs hit by the player.                        |
+:::
+
+
+::: {.callout-note collapse=true title="batter_stats"}
+This table captures traditional game-level statistics for each batter, derived from box score data. (statsapi)
+
+| **Variable**      | **Name**             | **Description**                                                              |
+|-------------------|----------------------|------------------------------------------------------------------------------|
+| `game_id`         | Game ID              | Unique identifier for the game.                                              |
+| `batter_id`       | Batter ID            | Unique identifier for the batter.                                            |
+| `team_id`         | Team ID              | Identifier for the team the batter played for in the game.                   |
+| `position`        | Position             | Fielding position the batter played during the game.                         |
+| `ab`              | At-Bats              | Number of official at-bats (excludes walks, HBP, sacrifices).                |
+| `h`               | Hits                 | Number of hits.                                                              |
+| `bb`              | Walks (BB)           | Number of base on balls (walks).                                            |
+| `r`               | Runs                 | Number of runs scored.                                                       |
+| `rbi`             | Runs Batted In       | Number of runs batted in.                                                    |
+| `so`              | Strikeouts           | Number of times the batter struck out.                                       |
+| `double`          | Doubles              | Number of doubles hit.                                                       |
+| `triple`          | Triples              | Number of triples hit.                                                       |
+| `hr`              | Home Runs            | Number of home runs hit.                                                     |
+| `sb`              | Stolen Bases         | Number of bases stolen during the game.                                      |
+:::
+
+
+::: {.callout-note collapse=true title="previews"}
+This table stores pre-game matchup context, such as historical batter-vs-pitcher performance, scraped from MLB.com preview pages. (Selenium)
+
+| **Variable**      | **Name**           | **Description**                                                             |
+|-------------------|--------------------|-----------------------------------------------------------------------------|
+| `game_date`       | Game Date          | Date of the game.                                                           |
+| `batter_name`     | Batter Name        | Name of the batter (no ID available in this table).                         |
+| `pitcher_name`    | Pitcher Name       | Name of the opposing pitcher.                                               |
+| `hr`              | Home Runs          | Total number of home runs prior to the game against the projected pitcher.                                |
+| `rbi`             | Runs Batted In     | Total number of RBIs prior to the game against the projected pitcher.                                     |
+| `ab`              | At-Bats            | Number of official at-bats prior to the game against the projected pitcher.                               |
+| `avg`             | Batting Average    | Batting average prior to the game against the projected pitcher.                                          |
+| `ops`             | On-Base Plus Slugging | OPS (OBP + SLG) prior to the game against the projected pitcher.                                        |
+:::
+
+
+::: {.callout-note collapse=true title="players"}
+This table contains player metadata, including full names and unique identifiers used to join across tables. (statsapi)
+
+| **Variable**      | **Name**       | **Description**                          |
+|-------------------|----------------|------------------------------------------|
+| `player_id`       | Player ID      | Unique identifier for the player.        |
+| `player_name`     | Player Name    | Full name of the player.                 |
+| `bats`     | Bats    | Which side they hit from (Left or Right).               |
+| `throws`     | Throws    | Which side they pitch from (Left or Right).              |
+| `birth_date`     | Birth Date    | Day player was born.                |
+:::
+
+
+::: {.callout-note collapse=true title="sides"}
+This table maps each team to its role in a given game (home or away), used to differentiate sides during analysis. (statsapi)
+
+| **Variable**      | **Name**       | **Description**                                              |
+|-------------------|----------------|--------------------------------------------------------------|
+| `game_id`         | Game ID        | Identifier for the game.                                     |
+| `team_id`         | Team ID        | Identifier for the team.                                     |
+| `side`            | Side           | Side of the team in the game (`home` or `away`).             |
+:::
+
+
+::: {.callout-note collapse=true title="teams"}
+This table contains metadata about each team, including their unique identifier and full name. (statsapi)
+
+| **Variable**      | **Name**       | **Description**                          |
+|-------------------|----------------|------------------------------------------|
+| `team_id`         | Team ID        | Unique identifier for the team.          |
+| `team_name`       | Team Name      | Full name of the team.                   |
+:::
+
+
+::: {.callout-note collapse=true title="games"}
+This table holds game-level information such as date and final scores for both home and away teams. (statsapi)
+
+| **Variable**      | **Name**           | **Description**                                                |
+|-------------------|--------------------|----------------------------------------------------------------|
+| `game_id`         | Game ID            | Unique identifier for the game.                                |
+| `date`            | Date               | Date the game was played.                                      |
+| `home_team_id`    | Home Team ID       | Identifier for the home team.                                  |
+| `home_score`      | Home Team Score    | Final score of the home team.                                  |
+| `away_team_id`    | Away Team ID       | Identifier for the away team.                                  |
+| `away_score`      | Away Team Score    | Final score of the away team.                                  |
+:::
+
+
+::: {.callout-note collapse="true" title="pitches"}
+This table contains pitch-level Statcast data used for machine learning feature engineering, derived from individual pitch outcomes. (pybaseball)
+
+| **Variable**    | **Name**               | **Description**                                                     |
+|----------------|----------------|----------------------------------------|
+| `game_id`       | Game ID                | Unique identifier for games table.                                 |
+| `batter_id`     | Batter ID              | Unique identifier for batters. |
+| `pitcher_id`    | Pitcher ID             | Unique identifier for pitchers.               |
+| `events`        | Pitch Outcome          | Result of the plate appearance (single, home_run, strikeout, etc.). |
+| `launch_speed`  | Exit Velocity          | Speed of batted ball off the bat in mph.                            |
+| `launch_angle`  | Launch Angle           | Vertical angle of batted ball trajectory in degrees.                |
+| `release_speed` | Pitch Velocity         | Speed of pitch when released in mph.                                |
+| `pitch_type`    | Pitch Type Code        | Abbreviated pitch type (FF=four-seam fastball, SL=slider, etc.).    |
+| `woba_value`    | Weighted On-Base Value | Run value assigned to the specific pitch outcome.                   |
+:::
+
+::: {.callout-note collapse=true title="pitcher_stats"}
+This table contains game-level performance stats for each pitcher, including innings pitched, runs allowed, and ERA. (statsapi)
+
+| **Variable**      | **Name**           | **Description**                                                  |
+|-------------------|--------------------|------------------------------------------------------------------|
+| `game_id`         | Game ID            | Unique identifier for the game.                                  |
+| `pitcher_id`      | Pitcher ID         | Unique identifier for the pitcher.                               |
+| `team_id`         | Team ID            | Identifier for the team the pitcher played for.                  |
+| `type`            | Pitcher Type       | Type of pitcher (e.g., starter, reliever).                       |
+| `ip`              | Innings Pitched    | Total number of innings pitched in the game.                     |
+| `h`               | Hits Allowed       | Total hits allowed.                                              |
+| `r`               | Runs Allowed       | Total runs allowed.                                              |
+| `er`              | Earned Runs        | Number of earned runs allowed.                                   |
+| `bb`              | Walks              | Number of walks issued.                                          |
+| `so`              | Strikeouts         | Number of batters struck out.                                    |
+| `hr`              | Home Runs Allowed  | Number of home runs allowed.                                     |
+| `pitches`         | Pitches Thrown     | Total number of pitches thrown.                                  |
+| `strikes`         | Strikes Thrown     | Number of strikes thrown.                                        |
+| `era`             | Earned Run Average | ERA for the game.                                                |
+:::
+
+
+::: {.callout-note collapse=true title="pitcher_statcast"}
+This table includes Statcast-derived advanced metrics for pitchers, highlighting differences between actual and expected outcomes like ERA, BA, SLG, and wOBA. (Baseball Savant)
+
+| **Variable**      | **Name**             | **Description**                                                             |
+|-------------------|----------------------|-----------------------------------------------------------------------------|
+| `pitcher_id`      | Pitcher ID           | Unique identifier for the pitcher.                                         |
+| `pa`              | Plate Appearances    | Number of completed batting appearances against the pitcher.               |
+| `bip`             | Balls In Play        | Number of batted balls put into play against pitcher.                                      |
+| `ba`              | Batting Average      | Batting average against the pitcher.                                       |
+| `x_ba`            | Expected BA          | Expected batting average based on batted ball data.                        |
+| `diff_ba`         | BA - xBA             | Difference between actual and expected batting average.                    |
+| `slg`             | Slugging Percentage  | Slugging percentage against the pitcher.                                   |
+| `x_slg`           | Expected SLG         | Expected slugging based on contact quality.                                |
+| `diff_slg`        | SLG - xSLG           | Difference between actual and expected slugging.                           |
+| `woba`            | Weighted On-Base Avg | Weighted on-base average against the pitcher.                              |
+| `x_woba`          | Expected wOBA        | Predicted wOBA using Statcast data.                                        |
+| `diff_woba`       | wOBA - xwOBA         | Difference between actual and expected wOBA.                               |
+| `era`             | ERA                  | Earned run average.                                                        |
+| `x_era`           | Expected ERA         | Expected ERA based on contact and strikeout/walk profile.                  |
+| `diff_era`        | ERA - xERA           | Difference between actual and expected ERA.                                |
+:::
+
+
+::: {.callout-note collapse=true title="pitcher_pitches"}
+This table contains pitch-type-level metrics for pitchers, including run value, whiff rate, usage rate, and contact quality outcomes. (Baseball Savant)
+
+| **Variable**      | **Name**                  | **Description**                                                             |
+|-------------------|---------------------------|-----------------------------------------------------------------------------|
+| `pitcher_id`      | Pitcher ID                | Unique identifier for the pitcher.                                         |
+| `pitch_name`      | Pitch Type                | Name of the pitch (e.g., fastball, slider).                                |
+| `rv_100`          | Run Value / 100 Pitches   | Average run value per 100 pitches thrown.                                  |
+| `rv`              | Run Value                 | Total run value assigned to the pitch.                                     |
+| `pitches`         | Pitches Thrown            | Number of times this pitch type was thrown.                                |
+| `pitch_usage`     | Pitch Usage               | Percentage of time this pitch type is used.                                |
+| `pa`              | Plate Appearances         | Total plate appearances ending with this pitch type.                       |
+| `ba`              | Batting Average           | Batting average against this pitch.                                        |
+| `x_ba`            | Expected BA               | Expected batting average against this pitch.                               |
+| `slg`             | Slugging Percentage       | Slugging percentage against this pitch.                                    |
+| `x_slg`           | Expected SLG              | Expected slugging against this pitch.                                      |
+| `woba`            | Weighted On-Base Average  | wOBA against this pitch.                                                   |
+| `x_woba`          | Expected wOBA             | Expected wOBA against this pitch.                                          |
+| `whiff_percent`   | Whiff Percentage          | Percent of swings against this pitch that missed.                          |
+| `k_percent`       | Strikeout Percentage      | Percent of plate appearances ending in strikeouts on this pitch.           |
+| `put_away`        | Put Away Percentage       | Percent of 2-strike counts resulting in strikeouts with this pitch.        |
+| `hard_hit`        | Hard Hit Percentage       | Percent of batted balls hit 95+ mph off this pitch.                        |
+:::
+
+
+::: {.callout-note collapse="true" title="betting_events"}
+This table links betting markets to scheduled or completed games. (oddsapi)
+
+| **Variable**     | **Name**        | **Description**                                        |
+|------------------|-----------------|--------------------------------------------------------|
+| `event_id`       | Event ID        | Unique identifier for each betting event.              |
+| `commence_date`  | Start Time      | Scheduled start date of the game.                      |
+| `home_team`      | Home Team       | Name of the home team.                         |
+| `away_team`      | Away Team       | Name of the away team.                         |
+| `completed`      | Completed Flag  | Boolean indicating whether the event has finished.     |
+:::
+
+
+::: {.callout-note collapse="true" title="player_props"}
+This table represents the planned betting market integration, designed to support model validation and value identification once populated with historical odds data. (oddsapi)
+
+| **Variable**    | **Name**        | **Description**                                        |
+|----------------|----------------|----------------------------------------|
+| `prop_id`       | Prop ID         | Primary key for individual prop bet offerings.         |
+| `event_id`      | Event ID        | Links to specific games through events table.          |
+| `bookmaker_key` | Sportsbook      | Identifier for which bookmaker offered the odds.       |
+| `market_type`   | Bet Type        | Type of prop bet (hits, total_bases, home_runs, etc.). |
+| `player_name`   | Player Name     | Name of player for the prop bet.                       |
+| `price`         | Betting Odds    | Decimal odds offered by bookmaker.                     |
+| `point`         | Over/Under Line | Threshold value for over/under bets (0.5, 1.5, etc.).  |
+| `last_update`         | Last Update | Time at which the prop was last updated.  |
+:::
+
+
+::: {.callout-note collapse="true" title="bookmakers"}
+This lookup table provides sportsbook identifiers used in the player_props table.
+
+| **Variable**      | **Name**         | **Description**                                        |
+|-------------------|------------------|--------------------------------------------------------|
+| `bookmaker_key`   | Sportsbook Key   | Unique identifier for the bookmaker |
+| `title`           | Sportsbook Name  | Display name of the sportsbook (e.g., “DraftKings”, "FanDuel", etc.).   |
+:::

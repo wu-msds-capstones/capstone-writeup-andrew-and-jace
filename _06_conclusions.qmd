@@ -1,1 +1,39 @@
 # Conclusions
+
+The following findings summarize the most important insights from our analyses. They are organized into two categories-- Over/Under Runs Bets and Prop Bets to distinguish between team-level and player-level perspectives.
+
+## Over/Under Runs Bets
+The first key finding is that bullpen performance is a major driver of scoring, with relief pitcher metrics, particularly ERA and innings pitched, proving to be strong predictors of team run totals, often surpassing the predictive value of starter statistics. This is intuitive: when a starting pitcher struggles, they are removed early, increasing reliance on the bullpen and creating opportunities to exploit fatigue or depth mismatches. In future work, incorporating contextual bullpen data—such as relievers’ recent usage or rest days—could further enhance predictive power.
+
+Next, we found that expected statistics can signal potential shifts in scoring. Differences between a team’s actual batting average and its expected batting average (xBA) often serve as early indicators of offensive changes. Teams outperforming their xBA may be benefiting from favorable luck or other unsustainable factors, suggesting a potential decline in future production. Conversely, teams underperforming their xBA may be making quality contact without seeing results, indicating a likely increase in their amount of hits in the future and thus run production as performance normalizes. However, these signals should always be considered in context, accounting for factors such as ballpark effects, strength of schedule, and injuries. Tracking these gaps offers a valuable tool for anticipating both upward and downward scoring trends.
+
+Lastly, recent team performance emerged as a significant factor when evaluating the over/under metric. In particular, trends in run production and hit totals over the last five games provide valuable context for predicting future scoring outcomes. A team averaging a high number of runs and hits in this short span may be in the midst of an offensive surge, benefiting from hot hitters, favorable matchups, or advantageous ballpark conditions. Conversely, a recent slump in both categories can signal an offense struggling to generate and capitalize on consistent scoring opportunities. Incorporating these short-term trends alongside season-long metrics allows for a more context-driven assessment of a team’s current scoring potential.
+
+
+## Prop Bets
+In our prop bet analysis, we examined two key outcomes: whether a player would record at least one hit and whether they would surpass 1.5 total bases. To approach this from multiple angles, we combined domain knowledge with statistical modeling-- evaluating matchup history as a potential predictor while also incorporating run value, a more advanced metric of offensive contribution. The findings from these analyses are outlined below.
+
+- **Hit Prop Bets**: A $10 wager on every player featured in the dashboard to record at least one hit would have yielded a total profit of $70.
+
+- **Total Bases Prop Bets**: A $10 wager on every player featured in the dashboard to exceed 1.5 total bases would have resulted in a total loss of $120.
+
+The dashboard appeared to predict the hits prop bets reasonably well but was less effective in forecasting the over 1.5 total bases outcome. Thus, incorporating slugging percentage (SLG) into our over 1.5 total bases prop could be highly beneficial. SLG is calculated by dividing a player’s total bases by their at-bats, with singles counting as one base, doubles as two, triples as three, and home runs as four. Unlike batting average, which values all hits equally, SLG places greater weight on extra-base hits, making it a stronger indicator of a player’s potential to exceed 1.5 total bases in a single game.
+
+Incorporating additional context could improve overall accuracy for both props as well. For example, a player’s position in the batting order can be important-- batting first versus ninth significantly impacts the number of plate appearances, with higher spots in the lineup typically guaranteeing more opportunities. Home and away status also matters: an away team is assured nine full innings of offense, while a home team leading after the top of the ninth will not bat in the bottom half, losing a potential at-bat. In betting, every opportunity matters, and maximizing them can improve results.
+
+Ballpark-specific performance is another valuable consideration. Some hitters excel in certain parks due to their dimensions; for instance, Fenway Park’s short distance and tall wall in left field can favor hitters who frequently pull the ball to that side. Conversely, some players may struggle in certain stadiums if background elements make it harder to track pitches. Considering these situational factors, along with player statistics at specific venues, the number of variables we could account for is virtually endless. It ranges from the home plate umpire’s strike zone tendencies to weather conditions such as wind speed, temperature, and humidity-- all of which can influence offensive performance. Factoring in any combination of these elements could further refine and enhance the dashboard’s predictive power in future versions.
+
+Achieved positive ROI through a systematic approach, generating a 1.95% ROI ($2,579.21 profit on $132,518.08 wagered) across 342 betting opportunities. This demonstrates that data-driven approaches can identify profitable opportunities in MLB player prop markets.
+
+The analysis revealed dramatic profitability differences across prop types, with hits_over_1.5 bets generating an 18.2% ROI, while hits_over_0.5 and total_bases_over_1.5 markets were near breakeven. These results suggest that certain player prop markets are less efficiently priced.
+
+Despite those positive returns, comprehensive statistical testing, including a bootstrap analysis with a p-value of 0.765, could not definitively rule out that the profits occurred by chance. This underscores the substantial sample sizes required for reliable validation in high-variance sports betting environments.
+
+
+## Implications
+
+Our research demonstrates that analytical approaches to MLB betting market analysis can identify potential value opportunities across both team-level and individual player markets. The combination of team scoring models, individual prop prediction, and interactive matchup analysis creates a comprehensive framework for market evaluation that addresses multiple betting contexts within professional baseball.
+
+The hybrid methodology successfully bridges traditional statistical analysis with modern machine learning techniques while maintaining academic rigor through proper validation and data leakage prevention. This approach provides a replicable framework for sports betting research that prioritizes methodological soundness over inflated performance claims, contributing to more reliable research standards in this emerging field.
+
+The solid performance achieved by our models—clustering around established academic baselines—validates market efficiency research suggesting that sustainable edges in professional sports betting are necessarily modest. Rather than claiming exceptional results, our work establishes realistic expectations for legitimate MLB prediction models and provides tools for comprehensive market analysis.
