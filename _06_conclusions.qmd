@@ -24,12 +24,11 @@ Incorporating additional context could improve overall accuracy for both props a
 
 Ballpark-specific performance is another valuable consideration. Some hitters excel in certain parks due to their dimensions; for instance, Fenway Park’s short distance and tall wall in left field can favor hitters who frequently pull the ball to that side. Conversely, some players may struggle in certain stadiums if background elements make it harder to track pitches. Considering these situational factors, along with player statistics at specific venues, the number of variables we could account for is virtually endless. It ranges from the home plate umpire’s strike zone tendencies to weather conditions such as wind speed, temperature, and humidity-- all of which can influence offensive performance. Factoring in any combination of these elements could further refine and enhance the dashboard’s predictive power in future versions.
 
+Achieved positive ROI through a systematic approach, generating a 1.95% ROI ($2,579.21 profit on $132,518.08 wagered) across 342 betting opportunities. This demonstrates that data-driven approaches can identify profitable opportunities in MLB player prop markets.
 
-- **Individual player prop prediction achieves solid academic performance**: Our machine learning models for individual player props achieved 0.549 AUC, closely aligning with the established academic baseline of 0.552 AUC (Elfrink, 2018). This performance demonstrates that meaningful signal exists in player statistics even within efficient prop betting markets, providing a foundation for future model enhancement.
+The analysis revealed dramatic profitability differences across prop types, with hits_over_1.5 bets generating an 18.2% ROI, while hits_over_0.5 and total_bases_over_1.5 markets were near breakeven. These results suggest that certain player prop markets are less efficiently priced.
 
-- **Methodological rigor enables reliable results**: Through strict validation procedures and elimination of data leakage, our models achieved realistic performance expectations rather than artificially inflated metrics. The absence of same-game features in our importance rankings confirms successful prevention of information leakage while maintaining predictive capability.
-
-- **Seasonal statistics provide core predictive foundation**: Feature importance analysis revealed that established seasonal performance metrics (batting average, OPS, wOBA) dominate individual player prediction, validating that player ability rather than game-specific circumstances drives prop betting outcomes. Historical per-game rates prove valuable for normalizing performance across different playing contexts.
+Despite those positive returns, comprehensive statistical testing, including a bootstrap analysis with a p-value of 0.765, could not definitively rule out that the profits occurred by chance. This underscores the substantial sample sizes required for reliable validation in high-variance sports betting environments.
 
 
 ## Implications

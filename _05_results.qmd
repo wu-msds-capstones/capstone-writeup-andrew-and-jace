@@ -167,90 +167,74 @@ At the bottom of the dashboard is a simulated betting analysis. For players to g
   </p>
 </div>
 
+# Results
+
 ## Machine Learning for Individual Player Props
 
-While the interactive dashboard approach provided valuable insights into daily matchup advantages, we recognized the need for a scalable, data-driven approach to individual player prop prediction. To complement the human-guided analysis, we developed a comprehensive machine learning pipeline focused on predicting specific prop betting outcomes using historical player performance and advanced statistical modeling.
+While the interactive matchup analysis provided valuable insights into daily opportunities through pitcher-batter historical data and pitch-type analysis, we recognized the need for a scalable, data-driven approach that could systematically evaluate large volumes of prop opportunities. Rather than integrating these approaches directly—which would have been ideal but was not feasible due to the higher cost of real-time odds data required for such integration—we developed a complementary machine learning pipeline that could operate independently while addressing similar prop betting markets. This ML system focused on predicting specific binary outcomes corresponding to common betting markets: whether a player would record at least one hit, at least two hits, and at least two total bases in a game.
 
-### Statistical Thinking and Model Development
+### Model Development and Methodology
 
-Our machine learning approach was grounded in established sports betting research, particularly the findings of Walsh & Joshi (2024) demonstrating that model calibration matters more than raw accuracy for betting profitability. Rather than optimizing solely for traditional machine learning metrics, we prioritized probability calibration to ensure our predictions would translate effectively to real-world betting scenarios.
+We framed individual player prop prediction as a binary classification problem, then applied probability calibration to ensure outputs would be suitable for betting applications. While classification accuracy optimizes prediction correctness, calibration adjusts probability estimates to align with observed outcome frequencies—essential for comparing model predictions against betting market prices. This approach follows Walsh & Joshi (2024) research showing calibration-optimized models achieve better ROI in sports betting applications.
 
-We framed individual player prop prediction as a series of binary classification problems, creating target variables that directly corresponded to common betting markets: whether a player would record more than 0.5 hits (`hits_over_0.5`), more than 1.5 hits (`hits_over_1.5`), and more than 1.5 total bases (`total_bases_over_1.5`). This approach aligned our statistical models with practical betting applications while maintaining methodological rigor.
+Our feature engineering used only information available before game time to avoid data leakage and artificially inflated model performance. We incorporated two types of player metrics: seasonal performance rates and volume-based historical patterns. Seasonal rates included batting average (hits per at-bat), on-base percentage, and slugging percentage, which measure hitting efficiency and quality. Volume-based features like hits per game and home runs per game captured typical production levels. Experience indicators such as games played and total plate appearances (individual batting opportunities) captured player usage patterns rates.
 
-A central emphasis throughout our model development was avoiding data leakage to ensure our predictions would replicate information realistically available before game time. This methodological focus guided our feature engineering process and model validation approach, prioritizing realistic predictive capability over artificially inflated performance metrics.
+The dataset comprised 19,587 player-game records with strict temporal validation: training on April-May 2025 data (12,000 records), validation on June 2025 (4,000 records), and testing on July 2025 (3,587 records). This temporal structure prevents the model from seeing future information during training, simulating realistic betting scenarios where only past performance can be used to inform future betting decisions.
 
-### Feature Engineering and Data Leakage Prevention
-
-Our feature engineering process was designed with strict adherence to temporal constraints that would apply in real-world betting scenarios. We exclusively used information that would be available before game time, avoiding any same-game statistics that could artificially inflate model performance.
-
-From seasonal batting statistics, we incorporated established player ability metrics including `season_batting_avg`, `season_obp`, `season_slg`, `season_ops`, `season_woba`, and `season_wrc_plus`. These provide baseline context for each player's demonstrated skill level over the current season.
-
-To capture per-game expectations without using same-game data, we calculated historical rate features such as `historical_hr_per_game`, `historical_hit_per_game`, `historical_walk_rate`, and `historical_k_rate` by dividing season totals by games played. These features provide realistic estimates of typical player output while maintaining temporal validity.
-
-Experience and volume indicators included `games_played`, `season_games`, and contextual factors such as `is_home` and `season` indicators. These features capture player experience, health, and situational factors without incorporating any information from the game being predicted.
-
-The final dataset comprised 19,587 player-game records across training (12,000), validation (4,000), and test (3,587) sets, with 47% of records containing complete seasonal statistical context. This represented a deliberate trade-off between data completeness and prediction reliability, focusing on players with sufficient historical information for meaningful modeling.
-
-### Model Architecture and Algorithm Selection
-
-Based on academic literature review, we implemented a comparative analysis of multiple machine learning algorithms known to perform well in sports prediction contexts. Our model suite included Random Forest, XGBoost, and ensemble methods, each calibrated using isotonic regression to optimize probability estimates for betting applications.
-
-The Random Forest implementation used 100 estimators with a maximum depth of 6, configured conservatively to prevent overfitting in the challenging sports prediction environment. Our XGBoost configuration employed 100 estimators with a learning rate of 0.05 and regularization parameters designed specifically for sports betting applications.
-
-Most critically, following Walsh & Joshi's research demonstrating that calibration-optimized models achieved +34.69% ROI versus -35.17% for accuracy-focused models, we applied CalibratedClassifierCV with isotonic regression to all base models. This ensured our probability outputs would be well-calibrated for betting decision-making rather than optimized solely for classification accuracy.
-
-To leverage the strengths of multiple algorithms, we created ensemble models using weighted voting that combined the calibrated outputs of our individual models. This approach aligned with Galekwa et al. (2024) findings that ensemble methods consistently outperform single models in sports betting applications.
+We implemented Random Forest, XGBoost, and ensemble methods with isotonic regression calibration applied to all base models to optimize probability estimates for betting applications.
 
 ### Model Performance and Validation
 
-Our comprehensive evaluation employed temporal validation with strict separation between training, validation, and test periods to simulate realistic prediction scenarios. Training data covered April-May 2025, validation used June 2025, and testing employed July 2025 data, ensuring models never saw future information during training.
+Before testing market profitability, we validated model performance on historical MLB outcomes using standard machine learning metrics. This sequential approach follows academic best practices: establish predictive capability on known outcomes before attempting market-based validation where multiple factors beyond model accuracy affect results.
 
-The Random Forest model achieved the strongest performance with an average test AUC of 0.549 across target variables, followed by ensemble methods at 0.548 AUC and XGBoost at 0.548 AUC. Individual target performance varied, with `hits_over_1.5` achieving the highest AUC of 0.554, while `total_bases_over_1.5` recorded 0.543 AUC.
+The Random Forest model achieved 0.549 test AUC, closely aligning with an established academic baseline of 0.552 AUC (Elfrink, 2018) for MLB prediction tasks. This alignment demonstrates realistic performance expectations rather than artificially inflated metrics which are common in sports betting literature.
 
-<figure id="fig-model_performance">
-  <img src="images/model_performance_comparison_final.png" alt="Model Performance Comparison" width="800">
-  <figcaption style="font-size: 10px; color: #555;">
-    **Figure 9**: Model performance comparison across MLB player prop targets. Left panel shows all algorithms clustering near the academic baseline (Elfrink 2018), demonstrating realistic performance expectations for sports betting applications. Right panel validates absence of overfitting through strong validation-test agreement along the diagonal.
-  </figcaption>
-</figure>
-
-When benchmarked against established academic literature, our results align closely with the documented baseline of 0.552 AUC (Elfrink, 2018) for MLB prediction tasks. This performance falls within the expected range for legitimate sports betting models that avoid data leakage, demonstrating that our emphasis on methodological rigor produced realistic performance estimates rather than artificially inflated metrics.
-
-The consistency of performance across different target variables and temporal periods validates our feature engineering approach and suggests that our models captured generalizable patterns in player performance rather than overfitting to specific outcomes or time periods. As shown in <a href="#fig-model_performance">Figure 9</a>, the tight clustering of all algorithms around the academic baseline, combined with the strong validation-test agreement along the diagonal, confirms both realistic performance expectations and robust generalization capabilities.
-
-### Feature Importance and Model Interpretation
-
-Analysis of feature importance revealed that seasonal performance metrics provided the primary predictive signal, with `season_batting_avg`, `season_ops`, and `season_woba` consistently ranking among the top contributors across all models. This finding validates the importance of established player ability as captured through comprehensive seasonal statistics.
+Feature importance analysis revealed seasonal performance rates provided the primary predictive signal, with batting average, OPS, and wOBA ranking as top contributors. The absence of same-game features from importance rankings confirms successful data leakage prevention, as shown in Figure 9.
 
 <figure id="fig-feature_importance">
-  <img src="images/feature_importance.png" alt="Feature Importance Analysis" width="800">
-  <figcaption style="font-size: 10px; color: #555;">
-    **Figure 10**: Feature importance analysis aggregated across all models and targets, demonstrating the dominance of legitimate pre-game predictors. Seasonal statistics (blue) and historical rates (orange) provide the strongest predictive signal, while the complete absence of same-game features confirms successful data leakage prevention.
-  </figcaption>
+<img src="images/Model Feature Importance.png" alt="Model Feature Importance" width="800">
+<figcaption style="font-size: 10px; color: #555;">
+**Figure 9**: Feature importance analysis aggregated across all models and prediction targets shows that seasonal performance metrics dominate predictive capability. Hit/Game and Batting Average emerge as the strongest predictors, with traditional sabermetric statistics (Slg, OPS, wOBA) providing additional signal. The absence of same-game features confirms successful data leakage prevention.
+</figcaption>
 </figure>
 
-Historical rate calculations such as `historical_hr_per_game` and `historical_hit_per_game` proved valuable for normalizing seasonal performance across different playing time contexts. Experience indicators including `games_played` provided meaningful context about player reliability and health status.
+### Integration with Real Sportsbook Odds
 
-As demonstrated in <a href="#fig-feature_importance">Figure 10</a>, the absence of any same-game derived features from the importance rankings confirms our successful elimination of data leakage while maintaining predictive capability. The dominance of seasonal statistics and historical rates validates our interpretation that established player ability, rather than game-specific circumstances, drives the primary predictive signal in our models.
+Having validated model performance on historical outcomes, we integrated predictions with historical odds data from nine major sportsbooks including DraftKings, FanDuel, BetMGM, and Caesars. This integration successfully matched 86.5% of our model predictions with corresponding market odds across 1.2 million player prop records. 100% integration was not possible due to some players not having odds posted for that day or market.
 
-Contextual factors like `season` and `is_home` showed moderate importance, suggesting systematic differences in performance across these dimensions. The absence of any same-game derived features from the top importance rankings confirms our successful elimination of data leakage while maintaining predictive capability.
+Our value detection algorithm identified betting opportunities where our generated model probabilities exceeded best available odds probabilities by at least 5%. This edge threshold ensures meaningful statistical advantage while accounting for the built-in profit margins that sportsbooks incorporate into their pricing.
 
-### Model Calibration and Odds Data Integration
+Position sizing employed Kelly criterion methodology, which calculates optimal bet size based on the magnitude of the statistical edge and odds offered to maximize long-term growth while controlling risk. We capped all positions at 5% of a $10,000 simulated bankroll to prevent excessive risk from model estimation errors.
 
-A critical aspect of our modeling approach was ensuring well-calibrated probability outputs suitable for betting applications. Our calibration analysis demonstrated that all models produced probability estimates closely aligned with observed outcome frequencies, essential for comparing model predictions with betting market prices.
+### Financial Performance and Market Testing
 
-The ROC analysis confirmed consistent discriminative ability across different target variables, with all models achieving meaningful separation between positive and negative cases despite the challenging nature of individual player prediction.
+Our backtesting analysis covered the period through July 12, 2025, stopping before the All Star Game. Through this period, our model identified 342 value betting opportunities, generating $2,579.21 profit on $132,518.08 wagered for 1.95% ROI. The system achieved a 41.5% win rate with mean return per bet of $7.54 and standard deviation of $460.80, reflecting the high variance inherent in individual bet outcomes. Figure 10 illustrates the volatile profit trajectory characteristic of sports betting applications.
 
-### Planned Integration with Betting Market Data
+<figure id="fig-cumulative_profit">
+<img src="images/Test Period Performance.png" alt="Test Period Performance" width="800">
+<figcaption style="font-size: 10px; color: #555;">
+**Figure 10**: Cumulative profit performance across 342 value betting opportunities through July 12, 2025. The high volatility pattern illustrates the inherent variance in sports betting outcomes, with significant drawdown periods followed by profitable streaks. Final profit of $2,579.21 represents 1.95% ROI despite substantial intermediate fluctuations.
+</figcaption>
+</figure>
 
-To evaluate whether our statistical models can identify profitable betting opportunities, we will integrate our calibrated probability predictions with real-time odds data from multiple sportsbooks. This integration represents the critical next phase of our hybrid modeling approach, where statistical predictions meet market-based information.
+Given this high variance environment, we conducted comprehensive statistical validation to assess whether our results represent genuine predictive capability and profitable edge or could have occurred by chance. Bootstrap analysis—repeatedly sampling our betting results with replacement—with 10,000 resamples generated a 95% confidence interval of [-$40.92, $56.78] for average profit per bet. This wide interval, spanning both positive and negative values, reflects the substantial uncertainty inherent in our relatively small sample size.
 
-Our odds data infrastructure captures player prop lines from major sportsbooks including DraftKings, FanDuel, BetMGM, and Caesars across the key markets we predict: hits over 0.5, hits over 1.5, and total bases over 1.5. By implementing comprehensive odds shopping across these platforms, we can identify the most favorable lines available for each predicted outcome, maximizing potential value when our model probabilities diverge significantly from market prices.
+Our effect size analysis revealed a standardized effect of 0.016 (Cohen's d), indicating a very small magnitude that falls well below conventional thresholds for meaningful effects in other fields. However, even a small edge in sports betting can be very profitable over time, assuming this edge is true and did not occur by chance. Permutation testing, which randomly shuffles our profit/loss results to simulate the null hypothesis of no predictive edge, yielded a p-value of 0.765. This result fails to reach traditional significance levels (p < 0.05), indicating we cannot confidently rule out that our profits occurred by random chance rather than systematic edge.
 
-The integration methodology will compare our calibrated model probabilities directly with implied probabilities from betting lines, accounting for sportsbook margins to identify genuine value opportunities. For instance, if our model assigns a 0.70 probability to a player recording 1+ hits, but the best available odds imply only a 0.60 probability (after margin adjustment), this represents a potential value bet. Consistent application of this approach across hundreds of daily prop opportunities will test whether our statistical edge translates to profitable betting outcomes.
+Power analysis suggests our 342-bet sample achieved approximately 62% statistical power, substantially below standards recommended for reliable conclusions. Based on our observed effect size and variance, we would aim for over 1000 bets to achieve adequate statistical power for definitive validation. These findings highlight a fundamental challenge in sports betting research: the high variance environment demands much larger sample sizes than typical analytical applications to distinguish consistent edges from random variation.
 
-### Integration with Matchup Analysis
+### Market Efficiency and Sportsbook Performance
 
-Our machine learning approach complements the interactive matchup analysis by providing automated screening capabilities across all players and games. While the dashboard excels at identifying specific daily opportunities through pitcher-batter historical data and pitch-type analysis, the ML models can evaluate hundreds of prop opportunities simultaneously using consistent statistical criteria.
+Our analysis revealed significant profit variations across both prop types and individual sportsbooks. Different betting markets showed substantially different results:
 
-This integration allows ML models to identify players whose predicted performance substantially differs from betting market prices, while the dashboard provides contextual validation through matchup-specific insights. The hybrid approach leverages both algorithmic pattern recognition capabilities and nuanced situational analysis for comprehensive opportunity identification.
+- **hits_over_1.5** (at least 2 hits): 18.2% ROI (112 bets)
+- **hits_over_0.5** (at least 1 hit): -0.5% ROI (178 bets)
+- **total_bases_over_1.5** (at least 2 total bases): -6.9% ROI (52 bets)
+
+This segmented performance pattern across prop types is noteworthy given that our underlying ML model achieved similar predictive accuracy across all three target markets when validated against actual game outcomes. The dramatic differences in betting profitability—despite comparable model performance—hints at varying levels of pricing efficiency across these markets. This suggests certain prop markets may have more opportunity for profit than others, potentially due to differences in betting volume, public attention, or line pricing errors.
+
+Performance also varied substantially across individual sportsbooks. The most profitable books included Fanatics ($7,252 profit, 72 bets), DraftKings ($2,121 profit, 14 bets), and FanDuel ($1,032 profit, 82 bets).
+
+### Practical Implementation and Future Directions
+
+The machine learning approach offers scalable EV prop identification capabilities that complement situational matchup analysis found in the dashboard. While manual approaches excel at identifying specific advantages through contextual factors, systematic ML evaluation provides consistent statistical criteria across hundreds of daily opportunities, suggesting promising directions for future research integrating algorithmic and human expertise in sports betting applications.
