@@ -167,7 +167,6 @@ At the bottom of the dashboard is a simulated betting analysis. For players to g
   </p>
 </div>
 
-# Results
 
 ## Machine Learning for Individual Player Props
 
