@@ -1,9 +1,8 @@
 # Conclusions
 
-## Key Findings
 The following findings summarize the most important insights from our analyses. They are organized into two categories-- Over/Under Runs Bets and Prop Bets to distinguish between team-level and player-level perspectives.
 
-### Over/Under Runs Bets
+## Over/Under Runs Bets
 The first key finding is that bullpen performance is a major driver of scoring, with relief pitcher metrics, particularly ERA and innings pitched, proving to be strong predictors of team run totals, often surpassing the predictive value of starter statistics. This is intuitive: when a starting pitcher struggles, they are removed early, increasing reliance on the bullpen and creating opportunities to exploit fatigue or depth mismatches. In future work, incorporating contextual bullpen data—such as relievers’ recent usage or rest days—could further enhance predictive power.
 
 Next, we found that expected statistics can signal potential shifts in scoring. Differences between a team’s actual batting average and its expected batting average (xBA) often serve as early indicators of offensive changes. Teams outperforming their xBA may be benefiting from favorable luck or other unsustainable factors, suggesting a potential decline in future production. Conversely, teams underperforming their xBA may be making quality contact without seeing results, indicating a likely increase in their amount of hits in the future and thus run production as performance normalizes. However, these signals should always be considered in context, accounting for factors such as ballpark effects, strength of schedule, and injuries. Tracking these gaps offers a valuable tool for anticipating both upward and downward scoring trends.
@@ -11,7 +10,7 @@ Next, we found that expected statistics can signal potential shifts in scoring. 
 Lastly, recent team performance emerged as a significant factor when evaluating the over/under metric. In particular, trends in run production and hit totals over the last five games provide valuable context for predicting future scoring outcomes. A team averaging a high number of runs and hits in this short span may be in the midst of an offensive surge, benefiting from hot hitters, favorable matchups, or advantageous ballpark conditions. Conversely, a recent slump in both categories can signal an offense struggling to generate and capitalize on consistent scoring opportunities. Incorporating these short-term trends alongside season-long metrics allows for a more context-driven assessment of a team’s current scoring potential.
 
 
-### Prop Bets
+## Prop Bets
 In our prop bet analysis, we examined two key outcomes: whether a player would record at least one hit and whether they would surpass 1.5 total bases. To approach this from multiple angles, we combined domain knowledge with statistical modeling-- evaluating matchup history as a potential predictor while also incorporating run value, a more advanced metric of offensive contribution. The findings from these analyses are outlined below.
 
 - **Hit Prop Bets**: A $10 wager on every player featured in the dashboard to record at least one hit would have yielded a total profit of $70.
@@ -38,5 +37,3 @@ Our research demonstrates that analytical approaches to MLB betting market analy
 The hybrid methodology successfully bridges traditional statistical analysis with modern machine learning techniques while maintaining academic rigor through proper validation and data leakage prevention. This approach provides a replicable framework for sports betting research that prioritizes methodological soundness over inflated performance claims, contributing to more reliable research standards in this emerging field.
 
 The solid performance achieved by our models—clustering around established academic baselines—validates market efficiency research suggesting that sustainable edges in professional sports betting are necessarily modest. Rather than claiming exceptional results, our work establishes realistic expectations for legitimate MLB prediction models and provides tools for comprehensive market analysis.
-
-The planned integration of live odds data represents the critical next phase for translating statistical predictions into practical betting applications. By implementing odds shopping across multiple sportsbooks and comparing model probabilities with market prices, future work can test whether identified statistical edges translate to profitable outcomes in real betting scenarios.

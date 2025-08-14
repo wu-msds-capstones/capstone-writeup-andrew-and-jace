@@ -1,5 +1,7 @@
 # Results
 
+Using the full dataset we compiled, we now turn to a focused analysis aimed at uncovering actionable edges for MLB betting. We start by modeling team run scoring to identify the strongest drivers of offense, then evaluate a classifier for over/under outcomes at the 4.5-run threshold. We follow that up with hitter-level prop work that combines matchup histories, pitch-type run values, and calibrated ML models which link predictions to historical sportsbook odds to test realized profitability.
+
 ## Over/Under Run Scoring Analysis
 Our initial analysis focused on identifying which variables were most predictive of how many runs a team scores in a given game. We used a wide range of features grouped into three main categories:
 
@@ -128,11 +130,7 @@ Together, these results show that our Random Forest model performs well across b
 
 The variable importance plot highlights the relative contribution of each feature to the model’s predictive accuracy. Among all inputs, the engineered feature <span style="color: #1f77b4;">rolling_runs_5</span> overwhelmingly emerged as the most influential. This feature, which captures a team's recent scoring momentum, proved to be the strongest indicator of whether a team would surpass the 4.5 run threshold. Its high importance reinforces the value of short-term performance trends in forecasting offensive output.
 
-Following this, <span style="color: #1f77b4;">team_rolling_ba_5</span>, which represents the team's batting average over the last five games, also ranked highly. This measure captures the overall quality of a team’s hitting during recent matchups, serving as a gauge of a team's ability to consistently get hits.
-
-Traditional pitching and matchup-based metrics also contributed meaningfully. For instance, <span style="color: #1f77b4;">sp_x_ba</span> and <span style="color: #1f77b4;">sp_era</span>, which reflect the expected batting average and earned run average of the opposing starting pitcher, respectively, helped capture the quality of pitching faced by the offense. These features provide critical context for how difficult it might be for a team to score in a given game.
-
-Similarly, <span style="color: #1f77b4;">b_x_ba</span> (expected batting average of the lineup) and <span style="color: #1f77b4;">b_slg</span> (slugging percentage) contributed additional insight into the underlying hitting power and contact quality of the offensive side.
+Following this, <span style="color: #1f77b4;">team_rolling_ba_5</span>, which represents the team's batting average over the last five games, also ranked highly. This measure captures the overall quality of a team’s hitting during recent matchups, serving as a gauge of a team's ability to consistently get hits. Traditional pitching and matchup-based metrics also contributed meaningfully. For instance, <span style="color: #1f77b4;">sp_x_ba</span> and <span style="color: #1f77b4;">sp_era</span>, which reflect the expected batting average and earned run average of the opposing starting pitcher, respectively, helped capture the quality of pitching faced by the offense. These features provide critical context for how difficult it might be for a team to score in a given game. Similarly, <span style="color: #1f77b4;">b_x_ba</span> (expected batting average of the lineup) and <span style="color: #1f77b4;">b_slg</span> (slugging percentage) contributed additional insight into the underlying hitting power and contact quality of the offensive side.
 
 Overall, the combination of short-term offensive momentum, recent team batting metrics, and opposing pitcher quality formed the backbone of the model’s predictive framework. These findings suggest that blending engineered features with traditional matchup statistics enhances the model’s ability to predict over/under outcomes accurately.
 
@@ -185,16 +183,13 @@ We framed individual player prop prediction as a binary classification problem, 
 Our feature engineering used only information available before game time to avoid data leakage and artificially inflated model performance. We incorporated two types of player metrics: seasonal performance rates and volume-based historical patterns. Seasonal rates included batting average (hits per at-bat), on-base percentage, and slugging percentage, which measure hitting efficiency and quality. Volume-based features like hits per game and home runs per game captured typical production levels. Experience indicators such as games played and total plate appearances (individual batting opportunities) captured player usage patterns rates.
 
 The dataset comprised 19,587 player-game records with strict temporal validation: training on April-May 2025 data (12,000 records), validation on June 2025 (4,000 records), and testing on July 2025 (3,587 records). This temporal structure prevents the model from seeing future information during training, simulating realistic betting scenarios where only past performance can be used to inform future betting decisions.
-
 We implemented Random Forest, XGBoost, and ensemble methods with isotonic regression calibration applied to all base models to optimize probability estimates for betting applications.
 
 ### Model Performance and Validation
 
 Before testing market profitability, we validated model performance on historical MLB outcomes using standard machine learning metrics. This sequential approach follows academic best practices: establish predictive capability on known outcomes before attempting market-based validation where multiple factors beyond model accuracy affect results.
 
-The Random Forest model achieved 0.549 test AUC, closely aligning with an established academic baseline of 0.552 AUC (Elfrink, 2018) for MLB prediction tasks. This alignment demonstrates realistic performance expectations rather than artificially inflated metrics which are common in sports betting literature.
-
-Feature importance analysis revealed seasonal performance rates provided the primary predictive signal, with batting average, OPS, and wOBA ranking as top contributors. The absence of same-game features from importance rankings confirms successful data leakage prevention, as shown in Figure 9.
+The Random Forest model achieved 0.549 test AUC, closely aligning with an established academic baseline of 0.552 AUC (Elfrink, 2018) for MLB prediction tasks. This alignment demonstrates realistic performance expectations rather than artificially inflated metrics which are common in sports betting literature. Feature importance analysis revealed seasonal performance rates provided the primary predictive signal, with batting average, OPS, and wOBA ranking as top contributors. The absence of same-game features from importance rankings confirms successful data leakage prevention, as shown in Figure 9.
 
 <figure id="fig-feature_importance">
 <img src="images/Model Feature Importance.png" alt="Model Feature Importance" width="800">

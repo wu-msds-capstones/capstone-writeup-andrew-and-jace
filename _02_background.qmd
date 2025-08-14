@@ -53,6 +53,7 @@ The second approach employs calibrated machine learning models trained on compre
 This dual-methodology investigation provides novel contributions to sports betting literature by rigorously implementing both approaches and examining their respective strengths for different aspects of the sports betting challenge. The research advances understanding of line pricing variations in proposition betting and provides practical insights into where different data-driven approaches may be most effective.
 
 ## Ethical Considerations
+ We next wanted to address potential ethical issues before we get further into our work. These ethical considerations are important because our analytical findings can influence real-world behavior and financial decisions; thus acknowledging limits and risks helps prevent harm and misuse. Stating our standards up front also strengthens the integrity and reproducibility of the research and ensures alignment with responsible gambling and legal frameworks.
 
 ### Data Privacy and Sources
 
